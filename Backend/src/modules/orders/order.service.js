@@ -20,3 +20,19 @@ export const getOrders = async () => {
 export const getOrder = async (orderId) => {
   return await OrderData.getOrder(orderId);
 };
+
+export const updateOrder = async (orderId, orderBody) => {
+  return await OrderData.updateOrder(orderId, orderBody);
+};
+
+export const deleteOrder = async (orderId) => {
+  return await OrderData.deleteOrder(orderId);
+};
+
+export const updateOrderStatus = async (orderId, orderBody) => {
+  const order = await OrderData.orderIsExist(orderId);
+  if (!order) {
+    throw new AppError(404, "Order not found");
+  }
+  return await OrderData.updateOrderStatus(orderId, orderBody);
+};
