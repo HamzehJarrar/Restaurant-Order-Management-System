@@ -2,26 +2,48 @@ import mongoose from "mongoose";
 
 const OrderSchema = new mongoose.Schema(
   {
-    tableNumber: Number,
+    tableNumber: {
+      type: Number,
+      required: true,
+    },
+
     items: [
       {
-        name: String,
-        price: Number,
-        quantity: Number,
+        menuId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Menu",
+          required: true,
+        },
+        name: {
+          type: String,
+          required: true,
+        },
+        price: {
+          type: Number,
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          min: 1,
+        },
         image: String,
         notes: String,
       },
     ],
+
     status: {
       type: String,
       enum: ["pending", "cooking", "ready", "served"],
       default: "pending",
     },
-    totalAmount: Number,
+
+    totalAmount: {
+      type: Number,
+      required: true,
+    },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 export const OrderModel = mongoose.model("Order", OrderSchema);
