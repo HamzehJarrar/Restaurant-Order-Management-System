@@ -1,4 +1,6 @@
 import * as menuService from "./menu.service.js";
+import { getPagination, getPaginationData } from "../../utils/pagination/pagination.js";
+
 
 export const addMenuItem = async (req, res) => {
   const { name } = req.body;
@@ -18,13 +20,19 @@ export const addMenuItem = async (req, res) => {
 };
 
 export const getAllMenuItems = async (req, res) => {
+  const { page, limit, skip } = getPagination(req);
   const { category } = req.query;
-  const items = await menuService.getAllMenuItems(category);
+
+  const data = await menuService.getAllMenuItems(category, skip, limit);
+
+  const response = getPaginationData(data, page, limit);
+
   res.status(200).json({
     success: true,
-    data: items,
+    ...response,
   });
 };
+
 
 export const updateMenuItem = async (req, res) => {
   const item = await menuService.updateMenuItem(req.params.id, req.body);

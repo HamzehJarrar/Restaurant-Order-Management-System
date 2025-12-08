@@ -8,15 +8,24 @@ export const isExistMenuItem = (name) => {
   return MenuModel.findOne({ name });
 };
 
-export const getAllMenuItems = (category) => {
+export const getAllMenuItems = async (category, skip, limit) => {
   let filter = {};
 
   if (category) {
-    filter.category = category;
+    filter.category = { $regex: category, $options: "i" };
   }
 
-  return MenuModel.find(filter).sort({ createdAt: -1 });
+  const count = await MenuModel.countDocuments(filter);
+
+  const items = await MenuModel.find(filter)
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 });
+
+  return { count, items };
 };
+
+
 
 
 export const updateMenuItem = (id, data) => {
