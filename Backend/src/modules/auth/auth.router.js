@@ -1,7 +1,8 @@
 import { Router } from "express";
-import * as controller from "./user.controller.js";
+import * as controller from "./auth.controller.js";
 import asyncHandler from "../../utils/asyncHandler.js";
-import { registerValidator, loginValidator } from "./user.validator.js";
+import { registerValidator } from "../../validation/user/userRegister.validator.js";
+import { loginValidator } from "../../validation/user/userLogin.validator.js";
 
 const router = Router();
 

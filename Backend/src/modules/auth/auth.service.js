@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import * as UserData from "./user.data.js";
+import * as UserData from "./auth.data.js";
 
 export const register = async (userData) => {
   const existingUser = await UserData.findUserByEmail(userData.email);
@@ -9,7 +9,7 @@ export const register = async (userData) => {
     return { error: "Email already exists" };
   }
 
-  const hashedPassword = await bcrypt.hash(userData.password, process.env.SALT);
+  const hashedPassword = await bcrypt.hash(userData.password, parseInt(process.env.SALT));
 
   const newUser = await UserData.createUser({
     ...userData,

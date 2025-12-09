@@ -4,7 +4,7 @@ export const registerValidator = (req, res, next) => {
   const schema = Joi.object({
     name: Joi.string().min(2).required(),
     email: Joi.string().email().required(),
-    password: Joi.string().min(6).required(),
+    password: Joi.string().min(1).required(),
     role: Joi.string().valid("admin", "waiter").default("waiter"),
   });
 

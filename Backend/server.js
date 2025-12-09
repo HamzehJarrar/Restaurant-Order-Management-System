@@ -2,11 +2,13 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./database/connection.js";
 import init from "./src/routes/index.js";
+import cors from "cors";
 
 import { createServer } from "http";
 import { Server } from "socket.io";
 
 dotenv.config();
+
 const app = express();
 const server = createServer(app);
 
@@ -17,12 +19,18 @@ const io = new Server(server, {
   },
 });
 
-
 // socket.io middleware
 app.use((req, res, next) => {
   req.io = io;
   next();
 });
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 // Routes
 init(express, app);

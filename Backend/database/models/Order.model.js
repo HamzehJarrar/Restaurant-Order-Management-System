@@ -34,7 +34,7 @@ const OrderSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending", "cooking", "ready", "served"],
+      enum: ["pending", "cooking", "ready", "served", "completed"], // أضفنا completed
       default: "pending",
     },
 
@@ -42,6 +42,8 @@ const OrderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+
+    table: { type: Number, required: true },
   },
   { timestamps: true }
 );
