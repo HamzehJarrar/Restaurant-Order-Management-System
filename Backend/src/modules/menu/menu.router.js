@@ -10,8 +10,6 @@ const router = Router();
 
 router.post(
   "/add",
-  auth,
-  authorizeRole("admin"),
   addMenuItemValidator,
   asyncHandler(controller.addMenuItem)
 );

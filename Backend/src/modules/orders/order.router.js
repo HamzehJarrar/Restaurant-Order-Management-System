@@ -1,4 +1,3 @@
-// src/modules/orders/order.router.js
 import { Router } from "express";
 import * as controller from "./order.controller.js";
 import asyncHandler from "../../utils/asyncHandler.js";
@@ -11,11 +10,11 @@ import { updateStatusValidator } from "../../validation/orderValidation/updateSt
 
 const router = Router();
 
-router.post("/", createOrderValidator, asyncHandler(controller.createOrder));
+router.post("/",  asyncHandler(controller.createOrder));
 
 router.patch(
   "/:id/add-item",
-  addItemValidator,
+
   asyncHandler(controller.addItemToOrder)
 );
 
