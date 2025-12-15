@@ -3,9 +3,8 @@ import * as controller from "./table.controller.js";
 
 const router = Router();
 
-router.get("/", controller.getTables);
+router.get("/", controller.getAllTables);
 router.post("/", controller.createTable);
-router.patch("/:number/assign", controller.assignTable);
-router.patch("/:number/free", controller.freeTable);
+router.get("/:id", controller.getTableById);
 
 export default router;

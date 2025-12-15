@@ -2,32 +2,13 @@ import mongoose from "mongoose";
 
 const MenuSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    image: {
-      type: String,
-      default: "",
-    },
-    category: {
-      type: String,
-      required: true,
-    },
-    available: {
+    name: String,
+    price: Number,
+    category: String,
+    image: String,
+    isAvailable: {
       type: Boolean,
       default: true,
-    },
-    description: {
-      type: String,
-      default: "",
-      maxlength: 300,
     },
   },
   { timestamps: true }

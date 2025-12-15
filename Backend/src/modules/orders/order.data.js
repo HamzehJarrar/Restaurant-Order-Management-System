@@ -2,58 +2,33 @@
 import { OrderModel } from "../../../database/models/Order.model.js";
 import { TableModel } from "../../../database/models/table.model.js";
 
-export const orderIsExist = async (orderId) => {
-  return await OrderModel.findById(orderId);
+
+/* Create order */
+export const createOrderDB = (data) => {
+  return OrderModel.create(data);
 };
 
-export const tableIsExist = async (tableNumber) => {
-  return await TableModel.findOne({ number: tableNumber });
+/* Get order by table */
+export const getOrderByTableDB = (tableId) => {
+  return OrderModel.findOne({ table: tableId, status: { $ne: "served" } })
+    .populate("table");
 };
 
-export const createOrder = async (order) => {
-  return await OrderModel.create(order);
+/* Get order by id */
+export const getOrderByIdDB = (id) => {
+  return OrderModel.findById(id);
 };
 
-export const getOrders = async () => {
-  return await OrderModel.find();
+/* Update order */
+export const updateOrderDB = (id, data) => {
+  return OrderModel.findByIdAndUpdate(id, data, { new: true });
 };
 
-export const getOrder = async (orderId) => {
-  return await OrderModel.findById(orderId);
-};
-
-export const updateOrder = async (orderId, orderBody) => {
-  return await OrderModel.findByIdAndUpdate(orderId, orderBody, {
-    new: true,
-    runValidators: true,
-  });
-};
-
-export const deleteOrder = async (orderId) => {
-  return await OrderModel.findByIdAndDelete(orderId);
-};
-
-export const updateOrderStatus = async (orderId, orderBody) => {
-  return await OrderModel.findByIdAndUpdate(orderId, orderBody, {
-    new: true,
-    runValidators: true,
-  });
-};
-
-export const payOrderService = async (orderId) => {
-  const order = await OrderModel.findById(orderId);
-  if (!order) throw new Error("Order not found");
-
-  order.status = "completed";
-  await order.save();
-
-  const table = await TableModel.findOne({ number: order.tableNumber });
-
-  if (table) {
-    table.status = "available";
-    table.currentOrder = null;
-    await table.save();
-  }
-
-  return order;
+/* Update table current order */
+export const updateTableOrderDB = (tableId, orderId) => {
+  return TableModel.findByIdAndUpdate(
+    tableId,
+    { currentOrder: orderId, status: "occupied" },
+    { new: true }
+  );
 };
