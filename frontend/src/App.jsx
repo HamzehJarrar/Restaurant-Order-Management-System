@@ -1,0 +1,24 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "@mui/material/styles";
+import { theme } from "./theme.js";
+import MenuPage from "./pages/menu/MenuPage.jsx";
+import OrdersPage from "./pages/orders/OrdersPage.jsx";
+import KitchenPage from "./pages/kitchen/KitchenPage.jsx";
+import POSPage from "./pages/orders/POSPage.jsx";
+function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<h1>Restaurant Home</h1>} />
+          <Route path="/menu" element={<MenuPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/kitchen" element={<KitchenPage />} />
+          <Route path="/pos" element={<POSPage />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
+  );
+}
+
+export default App;
