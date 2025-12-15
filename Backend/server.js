@@ -1,5 +1,7 @@
+import "./src/config/env.js";
 import express from "express";
-import dotenv from "dotenv";
+
+
 import connectDB from "./database/connection.js";
 import init from "./src/routes/index.js";
 import cors from "cors";
@@ -7,7 +9,6 @@ import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-dotenv.config();
 
 const app = express();
 const server = createServer(app);

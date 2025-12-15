@@ -4,9 +4,9 @@ import asyncHandler from "../../utils/asyncHandler.js";
 
 const router = Router();
 
-router.post("/", controller.createOrder);
-router.get("/table/:tableId", controller.getTableOrder);
-router.patch("/:id", controller.updateOrder);
-router.patch("/:id/status", controller.updateStatus);
+router.post("/", asyncHandler(controller.createOrder));
+router.get("/table/:tableId", asyncHandler(controller.getTableOrder));
+router.patch("/:id", asyncHandler(controller.updateOrder));
+router.patch("/:id/status", asyncHandler(controller.updateStatus));
 
 export default router;

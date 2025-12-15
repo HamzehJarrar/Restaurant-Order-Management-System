@@ -12,10 +12,10 @@ export const getMenuItemById = (id) => {
   return MenuModel.findById(id);
 };
 
-export const updateMenuItem = (item, data) => {
-  return MenuModel.findByIdAndUpdate(item, data, { new: true });
+export const updateMenuItem = (id, data) => {
+  return MenuModel.findByIdAndUpdate(id, data, { new: true });
 };
 
-export const deleteMenuItem = (item) => {
-  return MenuModel.findByIdAndDelete(item);
+export const deleteMenuItem = (id) => {
+  return MenuModel.findByIdAndDelete(id);
 };
