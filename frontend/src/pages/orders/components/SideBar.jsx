@@ -1,70 +1,44 @@
-import { Box, IconButton, Typography } from "@mui/material"
-import LocalCafeIcon from "@mui/icons-material/LocalCafe"
-import LocalBarIcon from "@mui/icons-material/LocalBar"
-import FastfoodIcon from "@mui/icons-material/Fastfood"
-import RestaurantIcon from "@mui/icons-material/Restaurant"
-import BakeryDiningIcon from "@mui/icons-material/BakeryDining"
-import TableBarIcon from "@mui/icons-material/TableBar"
+import { Box, Button } from "@mui/material";
+import { getTables } from "../../../api/table.api"
+import { useTableStore } from "../../../store/Table.store";
+import { useEffect } from "react";
+import { orange } from "@mui/material/colors";
 
-export default function SideBar() {
-  const categories = [
-    { icon: <LocalCafeIcon />, label: "Coffee", active: true },
-    { icon: <LocalBarIcon />, label: "Beverages", active: false },
-    { icon: <FastfoodIcon />, label: "Food", active: false },
-    { icon: <RestaurantIcon />, label: "Appetizer", active: false },
-    { icon: <BakeryDiningIcon />, label: "Bakeries", active: false },
-    { icon: <TableBarIcon />, label: "Table", active: false },
-  ]
+const SideBar = () => {
+  const setTables = useTableStore((state) => state.setTables);
+  const tableNumbers = useTableStore((state) => state.tableNumbers);
+  const setSelectedTable = useTableStore((state) => state.setSelectedTable);
+  const tables = useTableStore((state) => state.tables);
+
+  useEffect(() => {
+    const fetchTables = async () => {
+      try {
+        const tables = await getTables();
+        setTables(tables);
+      } catch (error) {
+        console.error("Failed to fetch tables:", error);
+      }
+    }
+    fetchTables();
+  }, []);
+
 
   return (
-    <Box
-      sx={{
-        width: 110,
-        bgcolor: "white",
-        borderRight: "1px solid #e5e7eb",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        py: 3,
-        gap: 2,
-      }}
-    >
-      {categories.map((cat, index) => (
-        <Box
-          key={index}
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 0.5,
+    <Box sx={{ display: "flex", width: "100px", mt: 2, gap: 1, flexDirection: "column" }}>
+      {tableNumbers.map((tablesNumber) => (
+        <Button key={tablesNumber}
+          onClick={() => {
+            const table = tables.find(t => t.number === tablesNumber);
+            setSelectedTable(table);
+
           }}
-        >
-          <IconButton
-            sx={{
-              bgcolor: cat.active ? "#10b981" : "#f9fafb",
-              color: cat.active ? "white" : "#9ca3af",
-              borderRadius: "16px",
-              width: 64,
-              height: 64,
-              "&:hover": {
-                bgcolor: cat.active ? "#059669" : "#f3f4f6",
-              },
-            }}
-          >
-            {cat.icon}
-          </IconButton>
-          <Typography
-            variant="caption"
-            sx={{
-              color: cat.active ? "#1f2937" : "#9ca3af",
-              fontSize: "0.75rem",
-              fontWeight: cat.active ? 600 : 500,
-            }}
-          >
-            {cat.label}
-          </Typography>
-        </Box>
+          sx={{
+            bgcolor: orange[500],
+            color: "white"
+          }}>{tablesNumber}</Button>
       ))}
     </Box>
-  )
-}
+  );
+};
+
+export default SideBar;

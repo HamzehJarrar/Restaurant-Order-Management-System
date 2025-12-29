@@ -1,9 +1,8 @@
 import * as tableService from "./table.service.js";
 
-export const getAllTables = (req, res) => {
-  const tables = tableService.getAllTables();
-  res.status(200).json({ success: true, data: tables });
-};
+export const getAllTables = async (req, res) => {
+  const tables = await tableService.getAllTables();
+res.json({ success: true, data: tables });};
 
 export const createTable = (req, res) => {
   const table = tableService.createTable(req.body);

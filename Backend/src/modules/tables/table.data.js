@@ -1,7 +1,7 @@
 import { TableModel } from "../../../database/models/table.model.js";
 
 export const getAllTables = () => {
-    return TableModel.find();
+    return TableModel.find().exec();
 }
 
 export const createTable = (table) => {
