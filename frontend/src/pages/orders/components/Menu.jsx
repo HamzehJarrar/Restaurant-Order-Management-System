@@ -24,7 +24,7 @@ function Menu({ order, setOrder }) {
   try {
     let currentOrder = order;
     
-    // إذا لم يكن هناك طلب نشط في الـ Store، نحاول جلبه أو إنشاؤه
+    
     if (!currentOrder) {
       currentOrder = await getOrderByTable(selectedTable._id);
     }
@@ -34,7 +34,6 @@ function Menu({ order, setOrder }) {
       items: [{ menuItemId: item._id, quantity: 1 }],
     });
 
-    // هذه الخطوة هي الأهم: تحديث الحالة في الـ Store
     setOrder(updatedOrder); 
   } catch (error) {
     console.error("Error adding item:", error);

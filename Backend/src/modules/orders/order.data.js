@@ -19,17 +19,18 @@ export const updateOrderStatusDB = (id, status) => {
 /* Get order by table */
 export const getOrderByTableDB = (tableId) => {
   return OrderModel.findOne({ table: tableId, status: { $ne: "served" } })
-    .populate("table");
+    .populate("table").populate("items.menuItemId");
 };
 
 /* Get order by id */
 export const getOrderByIdDB = (id) => {
-  return OrderModel.findById(id);
+  return OrderModel.findById(id).populate("items.menuItemId");
 };
 
 /* Update order */
 export const updateOrderDB = (id, data) => {
-  return OrderModel.findByIdAndUpdate(id, data, { new: true });
+  return OrderModel.findByIdAndUpdate(id, data, { new: true })
+    .populate("items.menuItemId");
 };
 
 /* Update table current order */

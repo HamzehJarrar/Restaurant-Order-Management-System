@@ -3,13 +3,12 @@ import { getOrderByTable, updateOrder } from "../../../api/order.api";
 import { useEffect } from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
 import WalletIcon from '@mui/icons-material/Wallet';
-import { useTableStore } from "../../../store/Table.store"; // استيراد الـ Store
+import { useTableStore } from "../../../store/Table.store"; 
 
 const TableSummary = ({ table }) => {
-  // استخدام الحالة والوظائف من الـ Store مباشرة
   const order = useTableStore((state) => state.order);
   const setOrder = useTableStore((state) => state.setOrder);
-  
+
   const now = new Date();
 
   useEffect(() => {
@@ -18,7 +17,7 @@ const TableSummary = ({ table }) => {
     const fetchOrder = async () => {
       try {
         const data = await getOrderByTable(table._id);
-        setOrder(data); // تحديث الـ Store بالطلب الجديد للطاولة المختارة
+        setOrder(data);
       } catch (error) {
         console.error("Error fetching order:", error);
         setOrder(null);
@@ -26,7 +25,7 @@ const TableSummary = ({ table }) => {
     };
 
     fetchOrder();
-  }, [table, setOrder]); // سيعمل الـ Effect عند تغيير الطاولة المختارة
+  }, [table, setOrder]);
 
   const updateQuantity = async (item, newQuantity) => {
     if (newQuantity < 1) return;
@@ -34,10 +33,10 @@ const TableSummary = ({ table }) => {
     const updatedItems = order.items.map((orderItem) =>
       orderItem._id === item._id ? { ...orderItem, quantity: newQuantity } : orderItem
     );
-    
+
     try {
       const updatedOrder = await updateOrder(order._id, { items: updatedItems });
-      setOrder(updatedOrder); // تحديث الـ Store ليراه الجميع فوراً
+      setOrder(updatedOrder); 
     } catch (error) {
       console.error("Error updating quantity:", error);
     }
@@ -48,11 +47,13 @@ const TableSummary = ({ table }) => {
 
     try {
       const updatedOrder = await updateOrder(order._id, { items: updatedItems });
-      setOrder(updatedOrder); // تحديث الـ Store ليراه الجميع فوراً
+      setOrder(updatedOrder);
     } catch (error) {
       console.error("Error removing item:", error);
     }
   };
+
+  console.log("Current Order:", order);
 
   return (
     <Box p={2} border="1px solid #ccc" borderRadius={2} width={400} bgcolor={"white"} >
@@ -60,15 +61,21 @@ const TableSummary = ({ table }) => {
       <Divider />
       <Typography variant="h6" color="#E64A19" mt={1} mb={1}>Table {table.number}</Typography>
       <Divider />
-      
+
       {order && order.items && order.items.length > 0 ? (
         <Box mt={2} gap={1} display="flex" flexDirection="column">
           {order.items.map((item, index) => (
             <Box key={item._id || index} mb={1} display="flex" alignItems="center" justifyContent="space-between">
               <img
-                src={item.image || "/placeholder.png"}
+                src={item.menuItemId?.image || item.image || "/placeholder.png"}
                 alt={item.name}
-                style={{ width: 50, height: 50, marginRight: 12, objectFit: "cover", borderRadius: 4 }}
+                style={{
+                  width: 50,
+                  height: 50,
+                  marginRight: 12,
+                  objectFit: "cover",
+                  borderRadius: 4
+                }}
               />
               <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 <Box sx={{ display: "flex", justifyContent: "space-between" }}>

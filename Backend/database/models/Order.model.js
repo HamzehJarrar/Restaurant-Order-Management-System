@@ -14,12 +14,16 @@ const OrderSchema = new mongoose.Schema(
         price: { type: Number, required: true },
         quantity: { type: Number, required: true },
         notes: { type: String },
+        menuItemId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Menu",
+        },
       },
     ],
 
     status: {
       type: String,
-      enum: ["pending", "cooking", "ready", "served"],
+      enum: ["pending", "OPEN", "cooking", "ready", "served"],
       default: "pending",
     },
 

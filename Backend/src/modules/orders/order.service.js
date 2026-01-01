@@ -58,12 +58,14 @@ export const addItemsToOrderService = async (orderId, newItems) => {
 
     if (index > -1) {
       updatedItems[index].quantity += newItem.quantity;
+      updatedItems[index].image = menuItem.image || "";
     } else {
       updatedItems.push({
         menuItemId: menuItem._id,
         name: menuItem.name,
         price: menuItem.price,
         quantity: newItem.quantity,
+        image: menuItem.image || "",
       });
     }
   }
