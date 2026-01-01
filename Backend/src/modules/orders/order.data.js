@@ -8,6 +8,14 @@ export const createOrderDB = (data) => {
   return OrderModel.create(data);
 };
 
+export const getAllOrdersDB = () => {
+  return OrderModel.find().populate("table");
+};
+
+export const updateOrderStatusDB = (id, status) => {
+  return OrderModel.findByIdAndUpdate(id, { status }, { new: true });
+}
+
 /* Get order by table */
 export const getOrderByTableDB = (tableId) => {
   return OrderModel.findOne({ table: tableId, status: { $ne: "served" } })

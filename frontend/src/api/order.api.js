@@ -4,6 +4,12 @@ export const createOrder = async (data) => {
   const res = await api.post("/orders", data);
   return res.data.data;
 };
+
+export const addItemsToOrder = async (data) => {
+  const res = await api.post("/orders/add-items", data);
+  return res.data.data;
+}
+
 export const getOrderByTable = async (tableId) => {
   const res = await api.get(`/orders/table/${tableId}`);
   return res.data.data;

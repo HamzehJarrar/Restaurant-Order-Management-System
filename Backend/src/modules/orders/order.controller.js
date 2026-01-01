@@ -12,6 +12,22 @@ export const createOrder = async (req, res) => {
     data: order,
   });
 };
+export const getAllOrders = async (req, res) => {
+  const orders = await service.getAllOrdersService();
+  res.status(200).json({
+    success: true,
+    data: orders,
+  });
+};
+
+export const addItemsToOrder = async (req, res) => {
+  const { orderId, items } = req.body;
+  const order = await service.addItemsToOrderService(orderId, items);
+  res.status(200).json({
+    success: true,
+    data: order,
+  });
+};
 
 /* GET /orders/table/:tableId */
 export const getTableOrder = async (req, res) => {

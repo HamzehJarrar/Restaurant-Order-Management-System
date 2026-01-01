@@ -24,7 +24,7 @@ const SideBar = () => {
 
 
   return (
-    <Box sx={{ display: "flex", width: "100px", mt: 2, gap: 1, flexDirection: "column" }}>
+    <Box sx={{ display: "flex", width: "100px", mt: 2, gap: 1, flexDirection: "column" , p:2 , bgcolor:"white", borderRadius:1}}>
       {tableNumbers.map((tablesNumber) => (
         <Button key={tablesNumber}
           onClick={() => {
