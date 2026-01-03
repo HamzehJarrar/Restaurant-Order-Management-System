@@ -21,9 +21,15 @@ export const updateOrder = async (orderId, data) => {
 };
 export const getAllOrders = async () => {
   const res = await api.get("/orders");
+  return res.data;
+};
+
+export const updateStatus = async (orderId, status) => {
+  const res = await api.patch(`/orders/${orderId}/status`, { status });
   return res.data.data;
 };
-export const updatePay = async (orderId) => {
-  const res = await api.patch(`/orders/${orderId}/pay`);
+
+export const deleteOrder = async (orderId) => {
+  const res = await api.delete(`/orders/${orderId}`);
   return res.data.data;
 };

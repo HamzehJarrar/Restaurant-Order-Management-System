@@ -1,12 +1,7 @@
-import { io } from "socket.io-client"
+import { io } from "socket.io-client";
 
-let socket
+const socket = io("http://localhost:3000", {
+  transports: ["websocket"],
+});
 
-export const getSocket = () => {
-  if (!socket) {
-    socket = io("http://localhost:3000", {
-      transports: ["websocket"],
-    })
-  }
-  return socket
-}
+export default socket;

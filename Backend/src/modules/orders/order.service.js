@@ -30,7 +30,7 @@ export const getTableOrderService = async (tableId) => {
       table: tableId,
       items: [],
       totalAmount: 0,
-      status: "OPEN",
+      status: "pending",
     });
 
     await orderDB.updateTableOrderDB(tableId, order._id);
@@ -98,8 +98,13 @@ export const updateOrderService = async (orderId, items) => {
   return order;
 };
 
+
 /* Update order status */
 export const updateOrderStatusService = async (orderId, status) => {
   const order = await orderDB.updateOrderDB(orderId, { status });
   return order;
+};
+
+export const deleteOrderService = async (orderId) => {
+  await orderDB.deleteOrderDB(orderId , {status: 'pending'});
 };

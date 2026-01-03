@@ -1,17 +1,17 @@
 import * as service from "./order.service.js";
 
 /* POST /orders */
-export const createOrder = async (req, res) => {
-  const order = await service.createOrderService(req.body);
 
-  // Notify kitchen
-  req.io.emit("order:new", order);
+export const createOrderService = async (payload) => {
+  const { table, items } = payload;
+  const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  res.status(201).json({
-    success: true,
-    data: order,
-  });
+  const order = await orderDB.createOrderDB({ table, items, totalAmount });
+  await orderDB.updateTableOrderDB(table, order._id);
+
+  return await orderDB.getOrderByIdDB(order._id);
 };
+
 export const getAllOrders = async (req, res) => {
   const orders = await service.getAllOrdersService();
   res.status(200).json({
@@ -23,6 +23,10 @@ export const getAllOrders = async (req, res) => {
 export const addItemsToOrder = async (req, res) => {
   const { orderId, items } = req.body;
   const order = await service.addItemsToOrderService(orderId, items);
+
+  // 🔥 هذا هو السطر الجوهري: يخبر المطبخ بوجود تحديث في الطلب
+  req.io.emit("order:statusChanged", order); 
+
   res.status(200).json({
     success: true,
     data: order,
@@ -48,6 +52,8 @@ export const updateOrder = async (req, res) => {
 
   const order = await service.updateOrderService(id, items);
 
+  req.io.emit("order:statusChanged", order);
+
   res.json({
     success: true,
     data: order,
@@ -67,5 +73,14 @@ export const updateStatus = async (req, res) => {
   res.json({
     success: true,
     data: order,
+  });
+};
+
+export const deleteOrder = async (req, res) => {
+  const { id } = req.params;
+  await service.deleteOrderService(id);
+  res.json({
+    success: true,
+    message: "Order deleted successfully",
   });
 };

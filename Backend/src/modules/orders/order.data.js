@@ -2,10 +2,11 @@
 import { OrderModel } from "../../../database/models/Order.model.js";
 import { TableModel } from "../../../database/models/table.model.js";
 
-
 /* Create order */
+/* src/modules/orders/order.data.js */
+
 export const createOrderDB = (data) => {
-  return OrderModel.create(data);
+  return OrderModel.create({ status: "pending", ...data });
 };
 
 export const getAllOrdersDB = () => {
@@ -14,22 +15,23 @@ export const getAllOrdersDB = () => {
 
 export const updateOrderStatusDB = (id, status) => {
   return OrderModel.findByIdAndUpdate(id, { status }, { new: true });
-}
+};
 
 /* Get order by table */
 export const getOrderByTableDB = (tableId) => {
   return OrderModel.findOne({ table: tableId, status: { $ne: "served" } })
-    .populate("table").populate("items.menuItemId");
+    .populate("table")
+    .populate("items.menuItemId");
 };
 
 /* Get order by id */
 export const getOrderByIdDB = (id) => {
-  return OrderModel.findById(id).populate("items.menuItemId");
+  return OrderModel.findById(id).populate("table").populate("items.menuItemId");
 };
 
-/* Update order */
 export const updateOrderDB = (id, data) => {
   return OrderModel.findByIdAndUpdate(id, data, { new: true })
+    .populate("table")
     .populate("items.menuItemId");
 };
 
@@ -40,4 +42,8 @@ export const updateTableOrderDB = (tableId, orderId) => {
     { currentOrder: orderId, status: "occupied" },
     { new: true }
   );
+};
+
+export const deleteOrderDB = (id) => {
+  return OrderModel.findByIdAndDelete(id);
 };

@@ -10,5 +10,5 @@ router.get("/", asyncHandler(controller.getAllOrders));
 router.get("/table/:tableId", asyncHandler(controller.getTableOrder));
 router.patch("/:id", asyncHandler(controller.updateOrder));
 router.patch("/:id/status", asyncHandler(controller.updateStatus));
-
+router.delete("/:id", asyncHandler(controller.deleteOrder));
 export default router;
