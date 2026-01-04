@@ -18,12 +18,13 @@ const OrderSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "Menu",
         },
+
       },
     ],
 
     status: {
       type: String,
-      enum: ["pending", "OPEN", "cooking", "ready", "served"],
+      enum: ["pending", "OPEN", "cooking", "ready", "served", "paid"],
       default: "pending",
     },
 
@@ -31,6 +32,8 @@ const OrderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    notes: { type: String, default: "" },
+    
   },
   { timestamps: true }
 );

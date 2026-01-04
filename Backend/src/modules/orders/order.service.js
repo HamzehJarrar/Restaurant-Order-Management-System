@@ -1,26 +1,6 @@
 import * as orderDB from "./order.data.js";
 import { MenuModel } from "../../../database/models/menu.model.js";
 
-/* Create order */
-export const createOrderService = async (payload) => {
-  const { table, items } = payload;
-
-  const totalAmount = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-
-  const order = await orderDB.createOrderDB({
-    table,
-    items,
-    totalAmount,
-  });
-
-  await orderDB.updateTableOrderDB(table, order._id);
-
-  return order;
-};
-
 /* Get current table order */
 export const getTableOrderService = async (tableId) => {
   let order = await orderDB.getOrderByTableDB(tableId);
@@ -52,8 +32,8 @@ export const addItemsToOrderService = async (orderId, newItems) => {
 
     const index = updatedItems.findIndex(
       (item) =>
-        item.menuItemId &&
-        item.menuItemId.toString() === menuItem._id.toString()
+        item.menuItemId?.toString() === menuItem._id.toString() &&
+        item.notes === (newItem.notes || "")
     );
 
     if (index > -1) {
@@ -66,6 +46,7 @@ export const addItemsToOrderService = async (orderId, newItems) => {
         price: menuItem.price,
         quantity: newItem.quantity,
         image: menuItem.image || "",
+        notes: newItem.notes || "",
       });
     }
   }
@@ -98,10 +79,13 @@ export const updateOrderService = async (orderId, items) => {
   return order;
 };
 
-
 /* Update order status */
-export const updateOrderStatusService = async (orderId, status) => {
-  const order = await orderDB.updateOrderDB(orderId, { status });
+// order.service.js
+export const updateOrderStatusService = async (orderId, status, notes) => {
+  const updateData = { status };
+  if (notes !== undefined) updateData.notes = notes;
+
+  const order = await orderDB.updateOrderDB(orderId, updateData);
   return order;
 };
 

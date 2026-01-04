@@ -10,7 +10,9 @@ export const createOrderDB = (data) => {
 };
 
 export const getAllOrdersDB = () => {
-  return OrderModel.find().populate("table");
+  return OrderModel.find({ 
+    status: { $in: ["pending", "OPEN", "cooking", "ready", "paid"] } 
+  }).populate("table").populate("items.menuItemId");
 };
 
 export const updateOrderStatusDB = (id, status) => {
@@ -19,7 +21,10 @@ export const updateOrderStatusDB = (id, status) => {
 
 /* Get order by table */
 export const getOrderByTableDB = (tableId) => {
-  return OrderModel.findOne({ table: tableId, status: { $ne: "served" } })
+  return OrderModel.findOne({ 
+    table: tableId, 
+    status: { $nin: ["served", "paid"] }
+  })
     .populate("table")
     .populate("items.menuItemId");
 };

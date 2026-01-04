@@ -1,16 +1,29 @@
-import { Box, Typography, Divider, Button } from "@mui/material";
-import { getOrderByTable, updateOrder, updateStatus , deleteOrder } from "../../../api/order.api";
+import { Box, Typography, Divider, Button, TextField, Chip } from "@mui/material"; // أضفنا Chip هنا
+import { getOrderByTable, updateOrder, updateStatus, deleteOrder } from "../../../api/order.api";
 import { useEffect } from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
 import WalletIcon from '@mui/icons-material/Wallet';
 import { useTableStore } from "../../../store/Table.store";
 import RestaurantIcon from '@mui/icons-material/Restaurant';
+import { useState } from "react";
 
 const TableSummary = ({ table }) => {
   const order = useTableStore((state) => state.order);
   const setOrder = useTableStore((state) => state.setOrder);
+  const [orderNotes, setOrderNotes] = useState("");
 
   const now = new Date();
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "cooking": return "primary";
+      case "ready": return "success";
+      case "OPEN": return "warning";
+      case "paid": return "success";
+      case "pending": return "default";
+      default: return "default";
+    }
+  };
 
   useEffect(() => {
     if (!table) return;
@@ -56,40 +69,60 @@ const TableSummary = ({ table }) => {
 
   const sndToKitchen = async () => {
     try {
-      const updatedOrder = await updateStatus(order._id, "OPEN"); 
+      const updatedOrder = await updateStatus(order._id, {
+        status: "OPEN",
+        notes: orderNotes
+      });
+
       setOrder(updatedOrder);
+      setOrderNotes("");
     } catch (error) {
       console.error("Error sending to kitchen:", error);
     }
   };
 
-  console.log("Current Order:", order);
-
-
   const deleteTheOrder = async () => {
     try {
-      await updateStatus(order._id, "pending");
+      await updateStatus(order._id, { status: "pending" });
       await deleteOrder(order._id);
       setOrder(null);
     } catch (error) {
       console.error("Error deleting order:", error);
     }
-  }
+  };
+
+  const payMent = async () => {
+    try {
+      const updatedOrder = await updateStatus(order._id, { status: "paid" });
+      setOrder(null);
+    } catch (error) {
+      console.error("Error processing payment:", error);
+    }
+  };
+
   return (
-    <Box p={2} border="1px solid #ccc" borderRadius={2} width={400} bgcolor={"white"} >
+    <Box p={2} border="1px solid #ccc" borderRadius={2} width={400} bgcolor={"white"} boxShadow={3}>
       <Typography variant="h6">{now.toLocaleTimeString()}</Typography>
       <Divider />
-      <Box sx={{
-        display: "flex",
-        justifyContent: "space-between"
-      }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Typography variant="h6" color="#E64A19" mt={1} mb={1}>Table {table.number}</Typography>
-        <Typography variant="h6" color="black" mt={1} mb={1}>Order: #00{table._id.slice(-3)}</Typography>
+        <Typography variant="subtitle2" color="textSecondary">Order: #00{table._id.slice(-3)}</Typography>
       </Box>
       <Divider />
 
       {order && order.items && order.items.length > 0 ? (
         <Box mt={2} gap={1} display="flex" flexDirection="column">
+          
+          
+          <Box display="flex" justifyContent="flex-start" mb={1}>
+            <Chip 
+              label={order.status.toUpperCase()} 
+              color={getStatusColor(order.status)} 
+              size="small"
+              sx={{ fontWeight: "bold", px: 1 }}
+            />
+          </Box>
+
           {order.items.map((item, index) => (
             <Box key={item._id || index} mb={1} display="flex" alignItems="center" justifyContent="space-between">
               <img
@@ -125,6 +158,17 @@ const TableSummary = ({ table }) => {
             </Box>
           ))}
           <Divider />
+          <TextField
+            fullWidth
+            label="Order Notes (e.g. No onion)"
+            variant="outlined"
+            size="small"
+            value={orderNotes}
+            onChange={(e) => setOrderNotes(e.target.value)}
+            sx={{ mt: 2, mb: 1 }}
+          />
+          <Divider />
+
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
             <Box>
               <Typography variant="h6" fontWeight="bold">Total</Typography>
@@ -141,10 +185,9 @@ const TableSummary = ({ table }) => {
             <RestaurantIcon sx={{ mr: 1 }} /> Send To Kitchen
           </Button>
 
-          <Button variant="contained" sx={{ mt: 2, bgcolor: "#1BA672" }} fullWidth>
+          <Button variant="contained" sx={{ mt: 2, bgcolor: "#1BA672" }} fullWidth onClick={payMent}>
             <WalletIcon sx={{ mr: 1 }} /> Checkout
           </Button>
-
 
           <Button variant="contained" sx={{ mt: 2, bgcolor: "red" }} fullWidth onClick={deleteTheOrder}>
             <DeleteIcon sx={{ mr: 1 }} /> Delete Order
@@ -157,7 +200,6 @@ const TableSummary = ({ table }) => {
     </Box>
   );
 };
-
 
 const btnStyle = { width: 30, height: 30, backgroundColor: "white", borderRadius: 5, border: "2px solid #E4E4E4", cursor: "pointer", color: "black", fontWeight: "bold", minWidth: "unset", padding: 0, boxShadow: "none" };
 const qtyBoxStyle = { bgcolor: "#E4E4E4", width: 40, height: 30, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 0.5 };
