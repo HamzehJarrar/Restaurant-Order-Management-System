@@ -5,16 +5,21 @@ export const getMenu = async (params = {}) => {
   return res.data.data;
 };
 
-export const createMenuItem = async (data) => {
+export const createItem = async (data) => {
   const res = await api.post("/menu", data);
   return res.data.data;
 };
 
-export const updateMenuItem = async (id, data) => {
+export const updateItem = async (id, data) => {
   const res = await api.patch(`/menu/${id}`, data);
   return res.data.data;
 };
 
-export const deleteMenuItem = async (id) => {
+export const deleteItem = async (id) => {
   await api.delete(`/menu/${id}`);
+};
+
+export const getMenuItemById = async (id) => {
+  const res = await api.get(`/menu/${id}`);
+  return res.data.data;
 };

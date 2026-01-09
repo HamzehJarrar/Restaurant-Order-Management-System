@@ -8,6 +8,7 @@ const router = Router();
 // routes/menu.routes.js
 router.get("/", asyncHandler(controller.getMenu));
 router.post("/", upload.single("image"), asyncHandler(controller.addMenuItem));
+router.get("/:id", asyncHandler(controller.getMenuItemById));
 router.patch("/:id", upload.single("image"), asyncHandler(controller.updateMenuItem));
 router.delete("/:id", asyncHandler(controller.deleteMenuItem));
 

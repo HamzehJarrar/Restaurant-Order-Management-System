@@ -25,3 +25,10 @@ export const deleteMenuItem = async (id) => {
   return await MenuData.deleteMenuItem(id);
 };
 
+export const getMenuItemById = async (id) => {
+  const item = await MenuData.getMenuItemById(id);
+  if (!item) {
+    throw new AppError("Item not found", 404);
+  }
+  return item;
+} 

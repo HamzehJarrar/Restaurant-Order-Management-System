@@ -46,7 +46,7 @@ function Menu({ order, setOrder }) {
       sx={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-        gap: 3,
+        gap: 1,
         p: 2,
       }}
     >
@@ -58,8 +58,8 @@ function Menu({ order, setOrder }) {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            p: 2,
-            borderRadius: 3,
+            p: 3,
+            borderRadius: 1,
             transition: "transform 0.2s, box-shadow 0.2s",
             "&:hover": {
               transform: "scale(1.05)",
@@ -70,8 +70,8 @@ function Menu({ order, setOrder }) {
         >
           <Box
             sx={{
-              width: 70,
-              height: 70,
+              width: 160,
+              height: 160,
               mb: 1,
               display: "flex",
               justifyContent: "center",
@@ -105,7 +105,7 @@ function Menu({ order, setOrder }) {
           <Button
             variant="contained"
             sx={{ backgroundColor: "#FF5733" }}
-            fullWidth
+            
             disabled={!selectedTable || loading}
             onClick={() => handleAddItem(item)}
           >

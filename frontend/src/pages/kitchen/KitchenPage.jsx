@@ -157,11 +157,12 @@ export default function KitchenPage() {
                           </Typography>
                         </Box>
                       ))}
-                      <Paper sx={{ p: 1, mb: 2, bgcolor: "#fff3e0", borderLeft: "4px solid #ff9800" }}>
+                      {order.notes && (<Paper sx={{ p: 1, mb: 2, bgcolor: "#fff3e0", borderLeft: "4px solid #ff9800" }}>
                         <Typography variant="body2" fontWeight="bold" color="warning.dark">
                           {order.notes}
                         </Typography>
-                      </Paper>
+                      </Paper>)}
+
                     </Box>
 
                     <Divider sx={{ my: 2 }} />

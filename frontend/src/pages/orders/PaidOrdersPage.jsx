@@ -18,7 +18,6 @@ const PaidOrdersPage = () => {
         const fetchPaid = async () => {
             try {
                 const res = await getAllOrders();
-                // التعامل مع هيكلية الـ response المختلفة
                 const rawData = res.data?.data || res.data || [];
                 if (Array.isArray(rawData)) {
                     const filtered = rawData.filter(order => order.status === "paid");
