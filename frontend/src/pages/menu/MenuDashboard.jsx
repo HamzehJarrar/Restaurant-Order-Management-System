@@ -14,12 +14,17 @@ import {
 } from '@mui/icons-material';
 import { getMenu, createItem, getMenuItemById, updateItem, deleteItem } from '../../api/menu.api';
 import Navbar from "../../components/layout/navbar";
+import DishDialog from './DishDialog';
+import ConfirmDialog from './ConfirmDialog';
+
 
 function MenuDashboard() {
     const [menuData, setMenuData] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [editDish, setEditDish] = useState(null);
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+    const [deleteDish, setDeleteDish] = useState(null);
 
     const [newDish, setNewDish] = useState({
         name: '',
@@ -105,14 +110,31 @@ function MenuDashboard() {
             console.error("Error updating dish:", error);
         }
     };
-    const handleDeleteDish = async (itemId) => {
+
+
+    const handleOpenDeleteDialog = (item) => {
+        setDeleteDish(item);
+        console.log("Deleting item:", item);
+        setOpenDeleteDialog(true);
+    };
+
+    const handleCloseDeleteDialog = () => {
+        setOpenDeleteDialog(false);
+        setDeleteDish(null);
+    };
+
+    const handleConfirmDelete = async () => {
         try {
-            await deleteItem(itemId);
-            setMenuData(menuData.filter(item => item._id !== itemId));
+            if (deleteDish) {
+                await deleteItem(deleteDish._id);
+                setMenuData(menuData.filter(item => item._id !== deleteDish._id));
+                handleCloseDeleteDialog();
+            }
         } catch (error) {
             console.error("Error deleting dish:", error);
         }
     };
+
 
 
     return (
@@ -193,9 +215,11 @@ function MenuDashboard() {
                                         <Button sx={{ mt: 2 }} onClick={() => handleOpenEditDialog(item._id)} variant="outlined" color="primary">
                                             <EditIcon sx={{ mr: 1 }} /> Edit
                                         </Button>
-                                        <Button color="error" onClick={() => handleDeleteDish(item._id)} sx={{ mt: 2, ml: 2 }} variant="outlined">
+
+                                        <Button color="error" onClick={() => handleOpenDeleteDialog(item)} sx={{ mt: 2, ml: 2 }} variant="outlined">
                                             <DeleteIcon sx={{ mr: 1 }} /> Delete
                                         </Button>
+
                                     </CardContent>
                                 </Card>
                             </Grid>
@@ -211,159 +235,34 @@ function MenuDashboard() {
 
             </Container>
 
-            <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="sm">
-                <DialogTitle>Add New Dish</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="Dish Name"
-                        type="text"
-                        fullWidth
-                        variant="outlined"
-                        sx={{ mb: 2 }}
-                        value={newDish.name}
+            <DishDialog
+                open={openDialog}
+                onClose={handleCloseDialog}
+                title="Add New Dish"
+                dish={newDish}
+                setDish={setNewDish}
+                onSubmit={handleAddDish}
+                submitText="Add Dish"
+            />
 
-                        onChange={(e) => { setNewDish({ ...newDish, name: e.target.value }) }}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Description"
-                        type="text"
-                        fullWidth
-                        variant="outlined"
-                        sx={{ mb: 2 }}
-                        value={newDish.description}
-                        onChange={(e) => { setNewDish({ ...newDish, description: e.target.value }) }}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Price"
-                        type="number"
-                        fullWidth
-                        variant="outlined"
-                        sx={{ mb: 2 }}
-                        value={newDish.price}
-                        onChange={(e) => { setNewDish({ ...newDish, price: e.target.value }) }}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="category"
-                        type="text"
-                        fullWidth
-                        variant="outlined"
-                        sx={{ mb: 2 }}
-                        value={newDish.category}
-                        onChange={(e) => { setNewDish({ ...newDish, category: e.target.value }) }}
-                    />
-                    <Button
-                        variant="outlined"
-                        component="label"
-                        fullWidth
-                        sx={{ mb: 2 }}
-                    >
-                        {newDish.image ? 'Change Image' : 'Upload Image'}
-                        <input
-                            hidden
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) =>
-                                setNewDish({ ...newDish, image: e.target.files[0] })
-                            }
-                        />
-                    </Button>
+            <DishDialog
+                open={openEditDialog}
+                onClose={handleCloseEditDialog}
+                title="Edit Dish"
+                dish={editDish}
+                setDish={setEditDish}
+                onSubmit={handleSaveEditDish}
+                submitText="Save Changes"
+            />
 
-                    {newDish.image && (
-                        <Typography variant="caption" color="success.main">
-                            Selected: {newDish.image.name}
-                        </Typography>
-                    )}
+            <ConfirmDialog
+                open={openDeleteDialog}
+                onClose={handleCloseDeleteDialog}
+                onConfirm={handleConfirmDelete}
+                title="Delete Dish?"
+                message={`Are you sure you want to delete "${deleteDish?.name}"? This action cannot be undone.`}
+            />
 
-
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDialog} color="secondary">Cancel</Button>
-                    <Button onClick={handleAddDish} variant="contained" color="primary">Add Dish</Button>
-                </DialogActions>
-            </Dialog>
-
-
-            <Dialog open={openEditDialog} onClose={handleCloseDialog} fullWidth maxWidth="sm">
-                <DialogTitle>Edit Dish</DialogTitle>
-                <DialogContent>
-                    {editDish && (
-                        <>
-                            <TextField
-                                autoFocus
-                                margin="dense"
-                                label="Dish Name"
-                                type="text"
-                                fullWidth
-                                variant="outlined"
-                                sx={{ mb: 2 }}
-                                value={editDish.name}
-                                onChange={(e) => setEditDish({ ...editDish, name: e.target.value })}
-                            />
-                            <TextField
-                                autoFocus
-                                margin="dense"
-                                label="Description"
-                                type="text"
-                                fullWidth
-                                variant="outlined"
-                                sx={{ mb: 2 }}
-                                value={editDish.description}
-                                onChange={(e) => setEditDish({ ...editDish, description: e.target.value })}
-                            />
-                            <TextField
-                                autoFocus
-                                margin="dense"
-                                label="Price"
-                                type="text"
-                                fullWidth
-                                variant="outlined"
-                                sx={{ mb: 2 }}
-                                value={editDish.price}
-                                onChange={(e) => setEditDish({ ...editDish, price: e.target.value })}
-                            />
-                            <TextField
-                                autoFocus
-                                margin="dense"
-                                label="Category"
-                                type="text"
-                                fullWidth
-                                variant="outlined"
-                                sx={{ mb: 2 }}
-                                value={editDish.category}
-                                onChange={(e) => setEditDish({ ...editDish, category: e.target.value })}
-                            />
-                            <Button
-                                variant="outlined"
-                                component="label"
-                                fullWidth
-                                sx={{ mb: 2 }}
-                            >
-                                {editDish.image ? 'Change Image' : 'Upload Image'}
-                                <input
-                                    hidden
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) =>
-                                        setEditDish({ ...editDish, image: e.target.files[0] })
-                                    }
-                                />
-                            </Button>
-
-                        </>
-                    )}
-
-
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseEditDialog} color="secondary">Cancel</Button>
-                    <Button onClick={handleSaveEditDish} variant="contained" color="primary">Save</Button>
-                </DialogActions>
-            </Dialog>
 
 
         </Box>

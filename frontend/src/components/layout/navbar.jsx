@@ -28,7 +28,7 @@ const Navbar = () => {
                 backgroundColor: "white",
                 boxShadow: "none",
                 padding: "0 10px",
-                border : "1px solid #E5E7EB",
+                border: "1px solid #E5E7EB",
             }}
         >
             <Toolbar sx={{ display: "flex", justifyContent: "space-between", height: "80px" }}>
@@ -58,25 +58,6 @@ const Navbar = () => {
                             {link.name}
                         </Button>
                     ))}
-
-                    {/* New Order Button */}
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/new-order")}
-                        sx={{
-                            backgroundColor: "#FF5722",
-                            color: "white",
-                            borderRadius: "50px",
-                            textTransform: "none",
-                            padding: "8px 24px",
-                            fontSize: "15px",
-                            fontWeight: "bold",
-                            boxShadow: "none",
-                            "&:hover": { backgroundColor: "#E64A19", boxShadow: "none" }
-                        }}
-                    >
-                        New Order
-                    </Button>
 
                     {/* Notification Icon */}
                     <IconButton

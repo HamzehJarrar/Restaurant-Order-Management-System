@@ -21,7 +21,10 @@ const PaidOrdersPage = () => {
                 const rawData = res.data?.data || res.data || [];
                 if (Array.isArray(rawData)) {
                     const filtered = rawData.filter(order => order.status === "paid");
-                    setPaidOrders(filtered);
+                    const sorted = filtered.sort((a, b) => {
+                        return new Date(b.updatedAt) - new Date(a.updatedAt);
+                    });
+                    setPaidOrders(sorted);
                 }
             } catch (err) {
                 console.error("Failed to fetch paid orders", err);
