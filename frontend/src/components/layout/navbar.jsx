@@ -10,16 +10,28 @@ import {
     Avatar
 } from "@mui/material";
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import { use } from "react";
 
 const Navbar = () => {
     const navigate = useNavigate();
+    const user = JSON.parse(localStorage.getItem("user"));
+    const role = user?.role;
 
     const navLinks = [
         { name: "Home", path: "/" },
         { name: "Kitchen", path: "/kitchen" },
         { name: "Paid Orders", path: "/paid-orders" },
-        { name: "Menu Dashboard", path: "/menu-dashboard" }
+
+        { name: "Menu Dashboard", path: "/menu-dashboard" , adminOnly: true},
+        { name: "Analytics", path: "/admin-analytics" , adminOnly: true},
     ];
+
+    const filteredNavLinks = navLinks.filter(link =>{
+        if(link.adminOnly && role !== "admin"){
+            return false;
+        }
+        return true;
+    })
 
     return (
         <AppBar
@@ -43,7 +55,7 @@ const Navbar = () => {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
 
                     {/* Text Links */}
-                    {navLinks.map((link) => (
+                    {filteredNavLinks.map((link) => (
                         <Button
                             key={link.name}
                             onClick={() => navigate(link.path)}

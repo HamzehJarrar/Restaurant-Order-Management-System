@@ -1,31 +1,47 @@
-import * as userService from "./auth.service.js";
+import * as authService from "./auth.service.js";
 
 export const register = async (req, res) => {
-  const result = await userService.register(req.body);
-
-  if (result.error) {
-    return res.status(400).json({ success: false, message: result.error });
-  }
+  const user = await authService.register(req.body);
 
   res.status(201).json({
     success: true,
     message: "User registered successfully",
-    data: result,
+    data: user,
   });
 };
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
+  const data = await authService.login(req.body.email, req.body.password);
 
-  const result = await userService.login(email, password);
-
-  if (result.error) {
-    return res.status(400).json({ success: false, message: result.error });
-  }
+  res.cookie("refreshToken",  data.refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+  });
 
   res.status(200).json({
     success: true,
     message: "Login successful",
-    data: result,
+    data,
+  });
+};
+
+export const refresh = async (req, res) => {
+  const accessToken = await authService.refreshToken(req.cookies.refreshToken);
+
+  res.status(200).json({
+    success: true,
+    data: { accessToken },
+  });
+};
+
+export const logout = async (req, res) => {
+  await authService.incrementTokenVersion(req.user.sub);
+
+  res.clearCookie("refreshToken");
+
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
   });
 };

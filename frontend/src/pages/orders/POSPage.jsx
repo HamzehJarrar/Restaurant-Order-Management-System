@@ -4,12 +4,22 @@ import SideBar from "./components/sideBar";
 import TableSummary from "./components/TableSummary";
 import { useTableStore } from "../../store/Table.store";
 import Menu from "./components/Menu.jsx";
+import { useNavigate } from "react-router-dom";
+
 
 const POSPage = () => {
   const selectedTable = useTableStore((state) => state.selectedTable);
   const order = useTableStore((state) => state.order);
   const setOrder = useTableStore((state) => state.setOrder);
+  
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
+  if (!token) {
+    navigate("/login");
+    return null;
+  }
+  
   return (
     <Box>
       <Navbar />

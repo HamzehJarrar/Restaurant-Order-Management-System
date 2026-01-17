@@ -1,27 +1,18 @@
-import { ApiError } from "../utils/ApiError.js";
 
-export const validate = (schema) => (req, res, next) => {
-  const { error, value } = schema.validate(
-    {
-      body: req.body,
-      params: req.params,
-      query: req.query,
-    },
-    { abortEarly: false }
-  );
+export const validate = (schema) => {
+  return (req, res, next) => {
+    const { error } = schema.validate(req.body, {
+      abortEarly: false,
+    });
 
-  if (error) {
-    return next(
-      new ApiError(
-        error.details.map((d) => d.message).join(", "),
-        400
-      )
-    );
-  }
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.details.map((d) => d.message),
+      });
+    }
 
-  req.body = value.body;
-  req.params = value.params;
-  req.query = value.query;
-
-  next();
+    next();
+  };
 };
+

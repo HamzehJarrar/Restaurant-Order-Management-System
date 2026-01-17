@@ -2,7 +2,6 @@ import { Box, Button } from "@mui/material";
 import { getTables } from "../../../api/table.api"
 import { useTableStore } from "../../../store/Table.store";
 import { useEffect } from "react";
-import { orange } from "@mui/material/colors";
 
 const SideBar = () => {
   const setTables = useTableStore((state) => state.setTables);
@@ -24,7 +23,7 @@ const SideBar = () => {
 
 
   return (
-    <Box sx={{ display: "flex", width: "100px", mt: 2, gap: 1, flexDirection: "column" , p:2 , bgcolor:"white", borderRadius:1}}>
+    <Box sx={{ display: "flex", width: "100px", ml: 2 ,mt: 2, gap: 1, flexDirection: "column" , p:2 , bgcolor:"white", borderRadius:1}}>
       {tableNumbers.map((tablesNumber) => (
         <Button key={tablesNumber}
           onClick={() => {
@@ -33,7 +32,7 @@ const SideBar = () => {
 
           }}
           sx={{
-            bgcolor: orange[500],
+            bgcolor: "#FC5832",
             color: "white"
           }}>{tablesNumber}</Button>
       ))}

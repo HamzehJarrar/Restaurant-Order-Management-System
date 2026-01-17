@@ -1,18 +1,50 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as UserData from "./auth.data.js";
+import { AppError } from "../../utils/AppError.js";
+
+const generateAccessToken = (user) =>
+  jwt.sign(
+    { sub: user._id, role: user.role, tokenVersion: user.tokenVersion },
+    process.env.JWT_ACCESS_SECRET,
+    { expiresIn: "15m" }
+  );
+
+const generateRefreshToken = (user) =>
+  jwt.sign(
+    { sub: user._id, tokenVersion: user.tokenVersion },
+    process.env.JWT_REFRESH_SECRET,
+    { expiresIn: "7d" }
+  );
+
+export const refreshToken = async (token) => {
+  if (!token) throw new AppError("Unauthorized", 401);
+
+  const payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+  const user = await UserData.findUserById(payload.sub);
+  if (!user || user.tokenVersion !== payload.tokenVersion)
+    throw new AppError("Unauthorized", 401);
+
+  return generateAccessToken(user);
+};
+
 
 export const register = async (userData) => {
   const existingUser = await UserData.findUserByEmail(userData.email);
 
   if (existingUser) {
-    return { error: "Email already exists" };
+    throw new AppError("Email already exists", 409);
   }
 
-  const hashedPassword = await bcrypt.hash(userData.password, parseInt(process.env.SALT));
+  const hashedPassword = await bcrypt.hash(
+    userData.password,
+    parseInt(process.env.SALT)
+  );
 
   const newUser = await UserData.createUser({
     ...userData,
+    role: "waiter",
     password: hashedPassword,
   });
 
@@ -21,25 +53,22 @@ export const register = async (userData) => {
 
 export const login = async (email, password) => {
   const user = await UserData.findUserByEmail(email);
-
-  if (!user) return { error: "Invalid email or password" };
+  if (!user) throw new AppError("Invalid credentials", 401);
 
   const match = await bcrypt.compare(password, user.password);
-  if (!match) return { error: "Invalid email or password" };
+  if (!match) throw new AppError("Invalid credentials", 401);
 
-  const token = jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
-  );
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
 
   return {
-    token,
+    accessToken,
+    refreshToken,
     user: {
       id: user._id,
-      name: user.name,
       email: user.email,
       role: user.role,
     },
   };
 };
+

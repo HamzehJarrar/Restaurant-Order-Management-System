@@ -5,5 +5,5 @@ export const createUser = (user) => {
 };
 
 export const findUserByEmail = (email) => {
-  return UserModel.findOne({ email });
+  return UserModel.findOne({ email }).select("+password");
 };

@@ -4,6 +4,7 @@ import menuRouter from "../modules/menu/menu.router.js";
 import analyticsRouter from "../modules/analytics/analytics.router.js";
 import tableRouter from "../modules/tables/table.router.js";
 import orderRouter from "../modules/orders/order.router.js";
+
 const init = (express, app) => {
   app.use(express.json());
   app.use("/api/orders", orderRouter);
@@ -11,6 +12,8 @@ const init = (express, app) => {
   app.use("/api/analytics", analyticsRouter);
   app.use("/api/auth", authRouter);
   app.use("/api/tables", tableRouter);
+  app.use("/api/auth", authRouter);
   app.use(globalErrorHandler);
+
 };
 export default init;

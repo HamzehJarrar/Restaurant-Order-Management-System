@@ -7,15 +7,15 @@ import { authorizeRole } from "../../middlewares/authorizeRole.js";
 const router = Router();
 
 // Sales Analytics
-router.get("/sales", auth, authorizeRole("admin"), asyncHandler(controller.getSalesAnalytics));
+router.get("/sales", asyncHandler(controller.getSalesAnalytics));
 
 // Best Sellers
-router.get("/bestsellers", auth, authorizeRole("admin"), asyncHandler(controller.getBestSellers));
+router.get("/bestsellers", asyncHandler(controller.getBestSellers));
 
 // Peak Hours
-router.get("/peak-hours", auth, authorizeRole("admin"), asyncHandler(controller.getPeakHours));
+router.get("/peak-hours", asyncHandler(controller.getPeakHours));
 
 // AI Insights
-router.post("/ai-insights", auth, authorizeRole("admin"), asyncHandler(controller.getAIInsights));
+router.post("/ai-insights", asyncHandler(controller.getAIInsights));
 
 export default router;
