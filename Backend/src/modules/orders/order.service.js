@@ -33,7 +33,7 @@ export const addItemsToOrderService = async (orderId, newItems) => {
     const index = updatedItems.findIndex(
       (item) =>
         item.menuItemId?.toString() === menuItem._id.toString() &&
-        item.notes === (newItem.notes || "")
+        item.notes === (newItem.notes || ""),
     );
 
     if (index > -1) {
@@ -52,7 +52,7 @@ export const addItemsToOrderService = async (orderId, newItems) => {
   }
   const totalAmount = updatedItems.reduce(
     (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
-    0
+    0,
   );
   return await orderDB.updateOrderDB(orderId, {
     items: updatedItems,
@@ -68,7 +68,7 @@ export const getAllOrdersService = async () => {
 export const updateOrderService = async (orderId, items) => {
   const totalAmount = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0
+    0,
   );
 
   const order = await orderDB.updateOrderDB(orderId, {
@@ -90,5 +90,5 @@ export const updateOrderStatusService = async (orderId, status, notes) => {
 };
 
 export const deleteOrderService = async (orderId) => {
-  await orderDB.deleteOrderDB(orderId , {status: 'pending'});
+  await orderDB.deleteOrderDB(orderId, { status: "pending" });
 };
