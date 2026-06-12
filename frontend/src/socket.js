@@ -1,5 +1,4 @@
 import { io } from "socket.io-client";
-
 import { API_BASE_URL } from "./config";
 
 const enableSocket = import.meta.env.VITE_ENABLE_SOCKET === "true";
@@ -12,10 +11,11 @@ const createNoopSocket = () => ({
   disconnect: () => {},
 });
 
+// Empty string → socket.io connects to current origin (correct for same-server prod)
+const socketUrl = API_BASE_URL || undefined;
+
 const socket = enableSocket
-  ? io(API_BASE_URL, {
-      transports: ["websocket", "polling"],
-    })
+  ? io(socketUrl, { transports: ["websocket", "polling"] })
   : createNoopSocket();
 
 export default socket;
