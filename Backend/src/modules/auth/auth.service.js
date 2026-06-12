@@ -1,20 +1,20 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as UserData from "./auth.data.js";
-import { AppError } from "../../utils/AppError.js";
+import { AppError } from "../../utils/appError.js";
 
 const generateAccessToken = (user) =>
   jwt.sign(
     { sub: user._id, role: user.role, tokenVersion: user.tokenVersion },
     process.env.JWT_ACCESS_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: "15m" },
   );
 
 const generateRefreshToken = (user) =>
   jwt.sign(
     { sub: user._id, tokenVersion: user.tokenVersion },
     process.env.JWT_REFRESH_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn: "7d" },
   );
 
 export const refreshToken = async (token) => {
@@ -35,7 +35,7 @@ export const register = async (userData) => {
 
   const hashedPassword = await bcrypt.hash(
     userData.password,
-    parseInt(process.env.SALT)
+    parseInt(process.env.SALT),
   );
 
   // First user ever becomes admin automatically
@@ -52,7 +52,7 @@ export const login = async (email, password) => {
   const match = await bcrypt.compare(password, user.password);
   if (!match) throw new AppError("Invalid credentials", 401);
 
-  const accessToken  = generateAccessToken(user);
+  const accessToken = generateAccessToken(user);
   const newRefreshToken = generateRefreshToken(user);
 
   return {
