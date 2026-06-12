@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Background pill -->
+  <rect width="64" height="64" rx="16" fill="#0f172a"/>
+
+  <!-- Fork (left) -->
+  <g fill="#f97316">
+    <!-- Fork handle -->
+    <rect x="19" y="36" width="3" height="14" rx="1.5"/>
+    <!-- Fork tines top connector -->
+    <rect x="18" y="28" width="5" height="2" rx="1"/>
+    <!-- Left tine -->
+    <rect x="18" y="14" width="2" height="16" rx="1"/>
+    <!-- Middle tine -->
+    <rect x="21" y="14" width="2" height="16" rx="1"/>
+    <!-- Right tine -->
+    <rect x="24" y="14" width="2" height="16" rx="1"/>
+  </g>
+
+  <!-- Knife (right) -->
+  <g fill="#f97316">
+    <!-- Knife handle -->
+    <rect x="42" y="36" width="3" height="14" rx="1.5"/>
+    <!-- Knife blade -->
+    <path d="M42 14 C42 14 45 18 45 28 L45 36 L42 36 L42 14Z" rx="1"/>
+  </g>
+
+  <!-- Plate / cloche dome -->
+  <ellipse cx="32" cy="43" rx="10" ry="2" fill="#ffffff" opacity="0.15"/>
+  <path d="M22 43 Q22 32 32 32 Q42 32 42 43 Z" fill="#ffffff" opacity="0.2"/>
+  <rect x="22" y="43" width="20" height="2" rx="1" fill="#ffffff" opacity="0.25"/>
+  <!-- Cloche handle knob -->
+  <rect x="30" y="29" width="4" height="3" rx="1.5" fill="#fbbf24"/>
+</svg>

@@ -14,6 +14,29 @@ import MenuBookIcon    from "@mui/icons-material/MenuBook";
 import BarChartIcon    from "@mui/icons-material/BarChart";
 import { useTheme }    from "@mui/material/styles";
 
+const KitchenMark = ({ size = 34, radius = "10px" }) => (
+  <Box sx={{
+    width: size, height: size, borderRadius: radius, flexShrink: 0,
+    background: "linear-gradient(140deg, #1e293b 0%, #0f172a 100%)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+  }}>
+    <svg width={size * 0.62} height={size * 0.62} viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Fork tines */}
+      <rect x="4" y="2" width="1.2" height="7" rx="0.6" fill="#f97316"/>
+      <rect x="6.2" y="2" width="1.2" height="7" rx="0.6" fill="#f97316"/>
+      <rect x="8.4" y="2" width="1.2" height="7" rx="0.6" fill="#f97316"/>
+      {/* Fork neck */}
+      <rect x="5.5" y="9" width="2.6" height="1.2" rx="0.6" fill="#f97316"/>
+      {/* Fork handle */}
+      <rect x="5.9" y="10" width="1.8" height="9" rx="0.9" fill="#f97316"/>
+      {/* Knife blade */}
+      <path d="M13 2 C13 2 16 5 16 10 L16 11 L13 11 Z" fill="#fbbf24"/>
+      {/* Knife handle */}
+      <rect x="13" y="11" width="3" height="9" rx="1.5" fill="#f97316"/>
+    </svg>
+  </Box>
+);
+
 const Navbar = () => {
   const navigate  = useNavigate();
   const location  = useLocation();
@@ -56,28 +79,8 @@ const Navbar = () => {
               mr: { md: 2 },
             }}
           >
-            {/* Icon mark */}
-            <Box
-              sx={{
-                width: 34,
-                height: 34,
-                borderRadius: "10px",
-                background: "linear-gradient(140deg, #1e293b 0%, #0f172a 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <Box
-                sx={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: "3px",
-                  background: "linear-gradient(135deg, #f97316, #fbbf24)",
-                }}
-              />
-            </Box>
+            {/* Kitchen icon mark */}
+            <KitchenMark size={34} radius="10px" />
 
             {/* Wordmark */}
             <Typography
@@ -91,12 +94,7 @@ const Navbar = () => {
               }}
             >
               easy
-              <Box
-                component="span"
-                sx={{ color: "secondary.main" }}
-              >
-                pos
-              </Box>
+              <Box component="span" sx={{ color: "secondary.main" }}>pos</Box>
             </Typography>
           </Box>
 
@@ -220,13 +218,7 @@ const Navbar = () => {
           pb: 2,
         }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Box sx={{
-              width: 30, height: 30, borderRadius: "9px",
-              background: "linear-gradient(140deg, #1e293b, #0f172a)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <Box sx={{ width: 8, height: 8, borderRadius: "2px", background: "linear-gradient(135deg, #f97316, #fbbf24)" }} />
-            </Box>
+            <KitchenMark size={30} radius="9px" />
             <Typography sx={{ fontSize: 16, fontWeight: 800, letterSpacing: "-0.03em", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               easy<Box component="span" sx={{ color: "secondary.main" }}>pos</Box>
             </Typography>
