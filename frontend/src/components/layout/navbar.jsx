@@ -1,18 +1,29 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   AppBar, Toolbar, Box, Typography, Button, IconButton,
   Avatar, Drawer, List, ListItemButton, ListItemIcon,
-  ListItemText, Divider, useMediaQuery,
+  ListItemText, Divider, useMediaQuery, Tooltip,
 } from "@mui/material";
-import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
-import CloseIcon       from "@mui/icons-material/Close";
-import HomeIcon        from "@mui/icons-material/Home";
-import KitchenIcon     from "@mui/icons-material/Kitchen";
-import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
-import MenuBookIcon    from "@mui/icons-material/MenuBook";
-import BarChartIcon    from "@mui/icons-material/BarChart";
-import { useTheme }    from "@mui/material/styles";
+import MenuRoundedIcon  from "@mui/icons-material/MenuRounded";
+import CloseIcon        from "@mui/icons-material/Close";
+import HomeIcon         from "@mui/icons-material/Home";
+import KitchenIcon      from "@mui/icons-material/Kitchen";
+import ReceiptLongIcon  from "@mui/icons-material/ReceiptLong";
+import MenuBookIcon     from "@mui/icons-material/MenuBook";
+import BarChartIcon     from "@mui/icons-material/BarChart";
+import LogoutIcon       from "@mui/icons-material/Logout";
+import PersonAddIcon    from "@mui/icons-material/PersonAdd";
+import { useTheme }     from "@mui/material/styles";
+import { api }          from "../../api/axios";
+
+const getRole = () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+    return JSON.parse(atob(token.split(".")[1])).role;
+  } catch { return null; }
+};
 
 const KitchenMark = ({ size = 34, radius = "10px" }) => (
   <Box sx={{
@@ -41,6 +52,14 @@ const Navbar = () => {
   const navigate  = useNavigate();
   const location  = useLocation();
   const [open, setOpen] = useState(false);
+
+  const role = useMemo(() => getRole(), []);
+
+  const handleLogout = async () => {
+    try { await api.post("/auth/logout"); } catch { /* ignore */ }
+    localStorage.removeItem("token");
+    navigate("/login", { replace: true });
+  };
 
   const links = useMemo(() => [
     { label: "POS",         path: "/",                icon: <HomeIcon        fontSize="small" /> },
@@ -170,7 +189,43 @@ const Navbar = () => {
               </Typography>
             </Box>
 
-           
+            {/* Add staff — admin, desktop only */}
+            {!isMobile && role === "admin" && (
+              <Tooltip title="Add staff account">
+                <IconButton
+                  size="small"
+                  onClick={() => navigate("/register")}
+                  sx={{
+                    width: 34, height: 34,
+                    bgcolor: "rgba(0,0,0,0.04)",
+                    border: "1px solid rgba(0,0,0,0.07)",
+                    borderRadius: "10px",
+                    "&:hover": { bgcolor: "rgba(249,115,22,0.08)", borderColor: "secondary.main" },
+                  }}
+                >
+                  <PersonAddIcon fontSize="small" sx={{ color: "#6b7280", fontSize: 16 }} />
+                </IconButton>
+              </Tooltip>
+            )}
+
+            {/* Logout — desktop only */}
+            {!isMobile && (
+              <Tooltip title="Sign out">
+                <IconButton
+                  size="small"
+                  onClick={handleLogout}
+                  sx={{
+                    width: 34, height: 34,
+                    bgcolor: "rgba(0,0,0,0.04)",
+                    border: "1px solid rgba(0,0,0,0.07)",
+                    borderRadius: "10px",
+                    "&:hover": { bgcolor: "rgba(249,115,22,0.08)", borderColor: "secondary.main" },
+                  }}
+                >
+                  <LogoutIcon fontSize="small" sx={{ color: "#6b7280", fontSize: 16 }} />
+                </IconButton>
+              </Tooltip>
+            )}
 
             {/* Hamburger — mobile */}
             {isMobile && (
@@ -231,7 +286,7 @@ const Navbar = () => {
 
         <Divider />
 
-        <List sx={{ px: 1.5, pt: 1.5, pb: 2 }}>
+        <List sx={{ px: 1.5, pt: 1.5, pb: 1 }}>
           {visible.map((link) => {
             const on = active(link.path);
             return (
@@ -272,6 +327,31 @@ const Navbar = () => {
           })}
         </List>
 
+        {/* Add staff — admin only */}
+        {role === "admin" && (
+          <>
+            <Divider sx={{ mx: 1.5, mb: 1 }} />
+            <List sx={{ px: 1.5, pb: 1 }}>
+              <ListItemButton
+                onClick={() => { navigate("/register"); setOpen(false); }}
+                sx={{
+                  borderRadius: "10px",
+                  py: 1.1, px: 1.5,
+                  "&:hover": { bgcolor: "rgba(249,115,22,0.06)" },
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 34, color: "secondary.main" }}>
+                  <PersonAddIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Add Staff"
+                  primaryTypographyProps={{ fontSize: 14, fontWeight: 500, color: "secondary.main" }}
+                />
+              </ListItemButton>
+            </List>
+          </>
+        )}
+
         {/* Bottom user row */}
         <Box sx={{
           mx: 2, mb: 2.5, mt: "auto",
@@ -284,8 +364,8 @@ const Navbar = () => {
           gap: 1.5,
         }}>
           <Avatar sx={{ width: 32, height: 32, fontSize: 13, fontWeight: 700, bgcolor: "#0f172a" }}>A</Avatar>
-          <Box>
-            <Typography variant="body2" fontWeight={700} fontSize={13}>Admin</Typography>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="body2" fontWeight={700} fontSize={13}>Staff</Typography>
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               <span className="live-dot" style={{ width: 10, height: 10 }}>
                 <span className="live-dot-inner" style={{ width: 6, height: 6 }} />
@@ -293,6 +373,12 @@ const Navbar = () => {
               <Typography variant="caption" color="text.secondary" fontSize={11}>Online</Typography>
             </Box>
           </Box>
+          <Tooltip title="Sign out">
+            <IconButton size="small" onClick={handleLogout}
+              sx={{ color: "#6b7280", "&:hover": { color: "secondary.main" } }}>
+              <LogoutIcon sx={{ fontSize: 18 }} />
+            </IconButton>
+          </Tooltip>
         </Box>
       </Drawer>
     </>

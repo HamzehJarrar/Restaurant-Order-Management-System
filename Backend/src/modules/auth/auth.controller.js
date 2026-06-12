@@ -13,10 +13,11 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   const data = await authService.login(req.body.email, req.body.password);
 
-  res.cookie("refreshToken",  data.refreshToken, {
+  res.cookie("refreshToken", data.refreshToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   res.status(200).json({

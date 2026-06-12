@@ -29,26 +29,20 @@ export const refreshToken = async (token) => {
   return generateAccessToken(user);
 };
 
-
 export const register = async (userData) => {
   const existingUser = await UserData.findUserByEmail(userData.email);
-
-  if (existingUser) {
-    throw new AppError("Email already exists", 409);
-  }
+  if (existingUser) throw new AppError("Email already exists", 409);
 
   const hashedPassword = await bcrypt.hash(
     userData.password,
     parseInt(process.env.SALT)
   );
 
-  const newUser = await UserData.createUser({
-    ...userData,
-    role: "waiter",
-    password: hashedPassword,
-  });
+  // First user ever becomes admin automatically
+  const userCount = await UserData.countUsers();
+  const role = userCount === 0 ? "admin" : "waiter";
 
-  return newUser;
+  return UserData.createUser({ ...userData, role, password: hashedPassword });
 };
 
 export const login = async (email, password) => {
@@ -58,17 +52,16 @@ export const login = async (email, password) => {
   const match = await bcrypt.compare(password, user.password);
   if (!match) throw new AppError("Invalid credentials", 401);
 
-  const accessToken = generateAccessToken(user);
-  const refreshToken = generateRefreshToken(user);
+  const accessToken  = generateAccessToken(user);
+  const newRefreshToken = generateRefreshToken(user);
 
   return {
     accessToken,
-    refreshToken,
-    user: {
-      id: user._id,
-      email: user.email,
-      role: user.role,
-    },
+    refreshToken: newRefreshToken,
+    user: { id: user._id, email: user.email, role: user.role },
   };
 };
 
+export const incrementTokenVersion = async (userId) => {
+  await UserData.incrementTokenVersion(userId);
+};

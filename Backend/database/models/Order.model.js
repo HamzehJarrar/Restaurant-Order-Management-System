@@ -13,12 +13,12 @@ const OrderSchema = new mongoose.Schema(
         name: { type: String, required: true },
         price: { type: Number, required: true },
         quantity: { type: Number, required: true },
-        notes: { type: String },
+        image: { type: String, default: "" },
+        notes: { type: String, default: "" },
         menuItemId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Menu",
         },
-
       },
     ],
 
