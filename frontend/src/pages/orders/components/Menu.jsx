@@ -38,7 +38,7 @@ function Menu({ order, setOrder }) {
         currentOrder = await getOrderByTable(selectedTable._id);
       }
       const updatedOrder = await addItemsToOrder({
-        orderId: currentOrder._id,
+        tableId: selectedTable._id,
         items: [{ menuItemId: item._id, quantity: 1 }],
       });
       setOrder(updatedOrder);
@@ -67,22 +67,22 @@ function Menu({ order, setOrder }) {
         sx={{
           mb: 2,
           '& .MuiOutlinedInput-root': {
-            borderRadius: '12px',
-            backgroundColor: '#f9f9f9',
+            borderRadius: '14px',
+            backgroundColor: 'rgba(255,255,255,0.92)',
             transition: '0.3s',
             '&:hover': {
-              backgroundColor: '#f0f0f0',
+              backgroundColor: '#fff',
               '& fieldset': {
-                borderColor: 'primary.main',
+                borderColor: 'rgba(249, 115, 22, 0.4)',
               },
             },
             '&.Mui-focused': {
               backgroundColor: '#fff',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              boxShadow: '0 6px 16px rgba(15, 23, 42, 0.12)',
             },
           },
           '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#e0e0e0',
+            borderColor: 'rgba(148, 163, 184, 0.3)',
           },
         }}
       />
@@ -98,46 +98,44 @@ function Menu({ order, setOrder }) {
             label={cat}
             clickable
             onClick={() => setSelectedCategory(cat)}
-            sx={{
-              fontWeight: 700,
-              textTransform: "capitalize",
-              px: 1.5,
-              py: 0.5,
-              fontSize: "1rem",
-              borderRadius: "20px",
-              transition: "all 0.3s ease",
-
-              backgroundColor: "transparent",
-              borderColor: "#FC5832",
-              borderWidth: "1px",
-              color: "#FC5832",
-
-
-              ...(selectedCategory === cat && {
-                backgroundColor: "#FC5832",
-                color: "white",
-                boxShadow: "0 4px 10px rgba(255, 87, 51, 0.3)",
+              sx={{
+                fontWeight: 700,
+                textTransform: "capitalize",
+                px: 1.5,
+                py: 0.5,
+                fontSize: "0.95rem",
+                borderRadius: "999px",
+                transition: "all 0.3s ease",
+                backgroundColor: "transparent",
+                borderColor: "rgba(245, 158, 11, 0.45)",
+                borderWidth: "1px",
+                color: "#92400e",
+                ...(selectedCategory === cat && {
+                  backgroundColor: "#f59e0b",
+                  color: "white",
+                  boxShadow: "0 6px 16px rgba(245, 158, 11, 0.35)",
+                  "&:hover": {
+                    backgroundColor: "#d97706",
+                  },
+                }),
                 "&:hover": {
-                  backgroundColor: "#FC5832",
-                },
-              }),
-
-
-              "&:hover": {
-                backgroundColor: "rgba(255, 87, 51, 0.08)",
-                borderColor: "#FF5733",
-              }
-            }}
-            variant="outlined"
-          />
-        ))}
+                  backgroundColor: "rgba(245, 158, 11, 0.08)",
+                  borderColor: "#fbbf24",
+                }
+              }}
+              variant="outlined"
+            />
+          ))}
       </Stack>
 
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-          gap: 2,
+          gridTemplateColumns: {
+            xs: "repeat(auto-fill, minmax(160px, 1fr))",
+            md: "repeat(auto-fill, minmax(210px, 1fr))",
+          },
+          gap: { xs: 1.5, md: 2 },
         }}
       >
         {filteredMenu.map((item) => (
@@ -145,18 +143,18 @@ function Menu({ order, setOrder }) {
             key={item._id}
             elevation={0}
             sx={{
-              p: 2,
+              p: { xs: 1.5, md: 2 },
               borderRadius: 4,
-              border: "1px solid #f0f0f0",
+              border: "1px solid rgba(148, 163, 184, 0.18)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              backgroundColor: "background.paper",
+              backgroundColor: "rgba(255,255,255,0.85)",
               transition: "transform 0.2s ease, box-shadow 0.2s ease",
               "&:hover": {
                 transform: "translateY(-5px)",
-                boxShadow: "0 10px 20px rgba(0,0,0,0.05)",
-                borderColor: "transparent",
+                boxShadow: "0 20px 35px rgba(15, 23, 42, 0.12)",
+                borderColor: "rgba(245, 158, 11, 0.35)",
               },
             }}
           >
@@ -167,7 +165,7 @@ function Menu({ order, setOrder }) {
                 mb: 2,
                 overflow: "hidden",
                 borderRadius: 3,
-                backgroundColor: "#f9f9f9",
+                backgroundColor: "rgba(15, 23, 42, 0.06)",
               }}
             >
               <img
@@ -185,7 +183,7 @@ function Menu({ order, setOrder }) {
             </Box>
 
             <Typography
-              variant="h5"
+              variant="h6"
               fontWeight="700"
               noWrap
               sx={{ width: "100%", textAlign: "center", mb: 0.5 }}
@@ -194,25 +192,25 @@ function Menu({ order, setOrder }) {
             </Typography>
 
             <Typography
-              variant="body1"
+              variant="body2"
               sx={{
-                mb: 1.5,
+                mb: 1.2,
                 color: "text.secondary",
-                backgroundColor: "#f5f5f5",
-                px: 1.5,
-                py: 0.2,
-                borderRadius: "10px",
+                backgroundColor: "rgba(245, 158, 11, 0.12)",
+                px: 1.2,
+                py: 0.4,
+                borderRadius: "999px",
                 textTransform: "uppercase",
-                letterSpacing: "0.5px",
+                letterSpacing: "0.8px",
               }}
             >
               {item.category}
             </Typography>
 
             <Typography
-              variant="h4"
+              variant="h5"
               fontWeight="800"
-              color="#FF5733"
+              color="#f59e0b"
               sx={{ mb: 2, display: "flex", alignItems: "center", gap: 0.5 }}
             >
               ₪{item.price}
@@ -225,14 +223,14 @@ function Menu({ order, setOrder }) {
               disabled={!selectedTable || loading}
               onClick={() => handleAddItem(item)}
               sx={{
-                backgroundColor: "#FC5832",
+                backgroundColor: "#0f172a",
                 borderRadius: "12px",
-                py: 1.2,
-                fontWeight: "bold",
+                py: 1.1,
+                fontWeight: 700,
                 textTransform: "none",
                 fontSize: "0.9rem",
                 "&:hover": {
-                  backgroundColor: "#FC5832",
+                  backgroundColor: "#1f2937",
                 },
               }}
             >

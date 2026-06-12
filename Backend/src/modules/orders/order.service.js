@@ -1,7 +1,6 @@
 import * as orderDB from "./order.data.js";
 import { MenuModel } from "../../../database/models/menu.model.js";
 
-/* Get current table order */
 export const getTableOrderService = async (tableId) => {
   let order = await orderDB.getOrderByTableDB(tableId);
 
@@ -19,7 +18,6 @@ export const getTableOrderService = async (tableId) => {
   return order;
 };
 
-/* Add items to order */
 export const addItemsToOrderService = async (orderId, newItems) => {
   const order = await orderDB.getOrderByIdDB(orderId);
   if (!order) throw new Error("Order not found");
@@ -64,7 +62,6 @@ export const getAllOrdersService = async () => {
   const orders = await orderDB.getAllOrdersDB();
   return orders;
 };
-/* Update order (add / edit items) */
 export const updateOrderService = async (orderId, items) => {
   const totalAmount = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -79,8 +76,6 @@ export const updateOrderService = async (orderId, items) => {
   return order;
 };
 
-/* Update order status */
-// order.service.js
 export const updateOrderStatusService = async (orderId, status, notes) => {
   const updateData = { status };
   if (notes !== undefined) updateData.notes = notes;

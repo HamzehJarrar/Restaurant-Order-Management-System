@@ -21,7 +21,6 @@ export const addItemsToOrder = async (req, res) => {
   });
 };
 
-/* GET /orders/table/:tableId */
 export const getTableOrder = async (req, res) => {
   const { tableId } = req.params;
 
@@ -33,7 +32,6 @@ export const getTableOrder = async (req, res) => {
   });
 };
 
-/* PATCH /orders/:id */
 export const updateOrder = async (req, res) => {
   const { id } = req.params;
   const { items } = req.body;
@@ -48,7 +46,6 @@ export const updateOrder = async (req, res) => {
   });
 };
 
-// order.controller.js
 export const updateStatus = async (req, res) => {
   const { id } = req.params;
   const { status, notes } = req.body;

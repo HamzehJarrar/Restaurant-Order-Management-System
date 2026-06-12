@@ -1,8 +1,5 @@
 import cloudinary from "../config/cloudinary.js";
 
-/**
- * Extract Cloudinary public_id from image URL
- */
 export const extractPublicId = (url = "") => {
   if (!url) return null;
 
@@ -14,12 +11,9 @@ export const extractPublicId = (url = "") => {
   return parts
     .slice(folderIndex)
     .join("/")
-    .replace(/\.[^/.]+$/, ""); // remove extension
+    .replace(/\.[^/.]+$/, "");
 };
 
-/**
- * Upload image buffer to Cloudinary
- */
 export const uploadImage = async (file, folder) => {
   const base64 = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
 
@@ -28,9 +22,6 @@ export const uploadImage = async (file, folder) => {
   return result.secure_url;
 };
 
-/**
- * Delete image from Cloudinary by URL
- */
 export const deleteImageByUrl = async (url) => {
   const publicId = extractPublicId(url);
   if (!publicId) return;

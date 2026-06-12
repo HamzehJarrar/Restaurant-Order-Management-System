@@ -13,16 +13,15 @@ import { Server } from "socket.io";
 const app = express();
 const server = createServer(app);
 
-// socket.io setup
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
+    credentials: true,
   },
 });
 
 app.set("io", io);
 
-// socket.io middleware
 app.use((req, res, next) => {
   req.io = io;
   next();
@@ -30,18 +29,15 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
     credentials: true,
   })
 );
 
-// Routes
 init(express, app);
 
-// Database connection
 connectDB();
 
-// Socket.io connection
 io.on("connection", (socket) => {
   console.log("🔥 New client connected:", socket.id);
 
@@ -50,7 +46,8 @@ io.on("connection", (socket) => {
   });
 });
 
-// Server
-server.listen(process.env.PORT, () => {
-  console.log(`🚀 Server running on port ${process.env.PORT}`);
+const port = Number(process.env.PORT) || 4000;
+
+server.listen(port, () => {
+  console.log(`🚀 Server running on port ${port}`);
 });

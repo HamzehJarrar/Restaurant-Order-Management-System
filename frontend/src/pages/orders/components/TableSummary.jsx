@@ -1,296 +1,273 @@
 import {
-  Box, Typography, Divider, Button, TextField, Chip, Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
+  Box, Typography, Divider, Button, TextField, Chip,
+  Dialog, DialogActions, DialogContent, DialogContentText,
+  DialogTitle, IconButton, Avatar,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import WalletIcon from "@mui/icons-material/Wallet";
+import RestaurantIcon from "@mui/icons-material/Restaurant";
 import { getOrderByTable, updateOrder, updateStatus, deleteOrder } from "../../../api/order.api";
 import { useEffect, useState } from "react";
-import DeleteIcon from '@mui/icons-material/Delete';
-import WalletIcon from '@mui/icons-material/Wallet';
 import { useTableStore } from "../../../store/Table.store";
-import RestaurantIcon from '@mui/icons-material/Restaurant';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast, ToastContainer } from "react-toastify";
+
+const statusColor = (s) => {
+  switch (s?.toLowerCase()) {
+    case "cooking": return "primary";
+    case "ready":   return "success";
+    case "open":    return "warning";
+    case "paid":    return "success";
+    default:        return "default";
+  }
+};
 
 const TableSummary = ({ table }) => {
-  const order = useTableStore((state) => state.order);
-  const setOrder = useTableStore((state) => state.setOrder);
-  const [orderNotes, setOrderNotes] = useState("");
-  const [open, setOpen] = useState(false);
+  const order    = useTableStore((s) => s.order);
+  const setOrder = useTableStore((s) => s.setOrder);
+  const [notes, setNotes]           = useState("");
+  const [open, setOpen]             = useState(false);
   const [actionType, setActionType] = useState("");
+  const [refetchKey, setRefetchKey] = useState(0);
 
-  const now = new Date();
-
-  // --- Logic Helpers ---
-
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case "cooking": return "primary";
-      case "ready": return "success";
-      case "open": return "warning";
-      case "paid": return "success";
-      default: return "default";
-    }
-  };
-
-  // Fetch order logic
   useEffect(() => {
     if (!table?._id) return;
-
-    const fetchOrder = async () => {
-      try {
-        const data = await getOrderByTable(table._id);
-        setOrder(data);
-      } catch (error) {
-        console.error("Error fetching order:", error);
-        setOrder(null);
-      }
-    };
-
-    fetchOrder();
-
-    // Cleanup when switching tables
+    getOrderByTable(table._id)
+      .then(setOrder)
+      .catch(() => setOrder(null));
     return () => setOrder(null);
-  }, [table?._id, setOrder]);
+  }, [table?._id, setOrder, refetchKey]);
 
-  // --- Action Handlers ---
-
-  const updateQuantity = async (item, newQuantity) => {
-    if (newQuantity < 1) return;
-
-    const updatedItems = order.items.map((orderItem) =>
-      orderItem._id === item._id ? { ...orderItem, quantity: newQuantity } : orderItem
-    );
-
+  const updateQuantity = async (item, qty) => {
+    if (qty < 1) return;
+    const items = order.items.map((i) => i._id === item._id ? { ...i, quantity: qty } : i);
     try {
-      const updatedOrder = await updateOrder(order._id, { items: updatedItems });
-      setOrder(updatedOrder);
-    } catch (error) {
+      setOrder(await updateOrder(order._id, { items, tableId: table._id }));
+    } catch {
       toast.error("Failed to update quantity");
-      console.error(error);
     }
   };
 
   const removeItem = async (itemId) => {
-    const updatedItems = order.items.filter((item) => item._id !== itemId);
-
+    const items = order.items.filter((i) => i._id !== itemId);
     try {
-      const updatedOrder = await updateOrder(order._id, { items: updatedItems });
-      setOrder(updatedOrder);
+      setOrder(await updateOrder(order._id, { items, tableId: table._id }));
       toast.info("Item removed");
-    } catch (error) {
+    } catch {
       toast.error("Failed to remove item");
-      console.error(error);
     }
   };
-
-  const sndToKitchen = async () => {
-    const updatedOrder = await updateStatus(order._id, {
-      status: "OPEN",
-      notes: orderNotes
-    });
-    setOrder(updatedOrder);
-    setOrderNotes("");
-  };
-
-  const deleteTheOrder = async () => {
-    await deleteOrder(order._id);
-    setOrder(null);
-  };
-
-  const payMent = async () => {
-    await updateStatus(order._id, { status: "paid" });
-    setOrder(null);
-  };
-
-  // --- Dialog Logic ---
 
   const actionsMap = {
     sendToKitchen: {
-      title: "Send Order to Kitchen",
-      text: "Are you sure you want to send this order to the kitchen?",
-      color: "#F6521F",
-      handler: sndToKitchen,
+      title: "Send to Kitchen?",
+      text:  "Confirm sending this order to the kitchen.",
+      color: "#f97316",
+      handler: async () => {
+        setOrder(await updateStatus(order._id, { status: "OPEN", notes }));
+        setNotes("");
+      },
       successMsg: "Order sent to kitchen!",
     },
     deleteOrder: {
-      title: "Delete Order",
-      text: "Are you sure you want to delete this order? This action cannot be undone.",
-      color: "red",
-      handler: deleteTheOrder,
-      successMsg: "Order deleted successfully!",
+      title: "Delete Order?",
+      text:  "This action cannot be undone.",
+      color: "#ef4444",
+      handler: async () => {
+        await deleteOrder(order._id);
+        setOrder(null);
+        setRefetchKey((k) => k + 1);
+      },
+      successMsg: "Order deleted.",
     },
     payment: {
-      title: "Checkout",
-      text: "Proceed to payment and close this table?",
-      color: "#1BA672",
-      handler: payMent,
-      successMsg: "Payment processed successfully!",
+      title: "Checkout?",
+      text:  "Process payment and close the table.",
+      color: "#10b981",
+      handler: async () => {
+        await updateStatus(order._id, { status: "paid" });
+        setOrder(null);
+        setRefetchKey((k) => k + 1);
+      },
+      successMsg: "Payment processed!",
     },
   };
 
-  const handleOpen = (type) => {
-    setActionType(type);
-    setOpen(true);
+  const handleOpen  = (t) => { setActionType(t); setOpen(true); };
+  const handleClose = () => { setOpen(false); setActionType(""); };
+  const handleYes   = async () => {
+    const a = actionsMap[actionType];
+    try { await a.handler(); toast.success(a.successMsg); }
+    catch { toast.error("Operation failed."); }
+    finally { handleClose(); }
   };
 
-  const handleClose = () => {
-    setOpen(false);
-    setActionType("");
-  };
-
-  const handleYes = async () => {
-    const action = actionsMap[actionType];
-    if (!action) return;
-
-    try {
-      await action.handler();
-      toast.success(action.successMsg);
-    } catch (error) {
-      toast.error("Operation failed. Please try again.");
-      console.error(error);
-    } finally {
-      handleClose();
-    }
-  };
-
-  const BtnColor = {
-    sendToKitchen: "#F6521F",
-    deleteOrder: "red",
-    payment: "#1BA672"
-  };
+  const total     = order?.items?.reduce((s, i) => s + i.price * i.quantity, 0) ?? 0;
+  const itemCount = order?.items?.reduce((s, i) => s + i.quantity, 0) ?? 0;
+  const now       = new Date();
 
   return (
-    <Box p={2} border="1px solid #ccc" borderRadius={2} width={400} bgcolor={"white"} boxShadow={3}>
-      <Typography variant="h6">{now.toLocaleTimeString()}</Typography>
-      <Divider />
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Typography variant="h6" color="#E64A19" mt={1} mb={1}>Table {table?.number}</Typography>
-        <Typography variant="subtitle2" color="textSecondary">
-          Order: {order ? `#00${order._id.slice(-3)}` : "N/A"}
-        </Typography>
-      </Box>
-      <Divider />
-
-      {order && order.items && order.items.length > 0 ? (
-        <Box mt={2} gap={1} display="flex" flexDirection="column">
-
-          <Box display="flex" justifyContent="flex-start" mb={1}>
-            <Chip
-              label={order.status.toUpperCase()}
-              color={getStatusColor(order.status)}
-              size="small"
-              sx={{ fontWeight: "bold", px: 1 }}
-            />
+    <Box sx={{
+      p: { xs: 2, md: 2.5 },
+      border: "1px solid rgba(148,163,184,0.2)",
+      borderRadius: 4,
+      bgcolor: "rgba(255,255,255,0.92)",
+      boxShadow: "0 16px 40px rgba(15,23,42,0.1)",
+      position: { xs: "static", md: "sticky" },
+      top: 80,
+      width: "100%",
+    }}>
+      {/* Header */}
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
+        <Box>
+          <Typography variant="h6" fontWeight={800} color="secondary.main">
+            Table {table?.number}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          </Typography>
+        </Box>
+        {order && (
+          <Box sx={{ textAlign: "right" }}>
+            <Chip label={order.status?.toUpperCase()} color={statusColor(order.status)}
+              size="small" sx={{ fontWeight: 700, display: "block", mb: 0.5 }} />
+            <Typography variant="caption" color="text.disabled">
+              #{order._id.slice(-6).toUpperCase()}
+            </Typography>
           </Box>
+        )}
+      </Box>
 
-          {order.items.map((item, index) => (
-            <Box key={item._id || index} mb={1} display="flex" alignItems="center" justifyContent="space-between">
-              <img
-                src={item.menuItemId?.image || item.image || "/placeholder.png"}
-                alt={item.name}
-                style={{
-                  width: 50,
-                  height: 50,
-                  marginRight: 12,
-                  objectFit: "cover",
-                  borderRadius: 4
-                }}
-              />
-              <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Typography variant="subtitle1" fontWeight="bold">{item.name}</Typography>
-                  <Typography variant="h6" fontWeight="bold" color="#F6521F">
-                    ₪{(item.quantity * item.price).toFixed(2)}
-                  </Typography>
+      <Divider sx={{ mb: 2 }} />
+
+      {order?.items?.length > 0 ? (
+        <>
+          {/* Items */}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 2 }}>
+            {order.items.map((item, idx) => (
+              <Box key={item._id ?? idx} sx={{
+                display: "flex", alignItems: "center", gap: 1.5,
+                p: 1.2, borderRadius: 3,
+                bgcolor: "rgba(248,245,240,0.8)",
+                border: "1px solid rgba(148,163,184,0.1)",
+              }}>
+                <Avatar
+                  src={item.menuItemId?.image || item.image}
+                  variant="rounded"
+                  sx={{ width: 44, height: 44, borderRadius: 2, flexShrink: 0 }}
+                >
+                  {item.name?.charAt(0)}
+                </Avatar>
+
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography variant="body2" fontWeight={700} noWrap>{item.name}</Typography>
+                  <Typography variant="caption" color="text.secondary">₪{item.price}</Typography>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Typography variant="h6" color="#F6521F">₪{item.price}</Typography>
-                  <Box display="flex" alignItems="center" ml={2}>
-                    <Button variant="contained" onClick={() => updateQuantity(item, item.quantity - 1)} style={btnStyle}>-</Button>
-                    <Typography variant="body1" mx={1} sx={qtyBoxStyle}>{item.quantity}</Typography>
-                    <Button variant="contained" onClick={() => updateQuantity(item, item.quantity + 1)} style={btnStyle}>+</Button>
-                  </Box>
-                  <Box component="button" onClick={() => removeItem(item._id)} style={deleteBtnStyle}>
-                    <DeleteIcon style={{ fontSize: 16 }} />
-                  </Box>
+
+                {/* Qty controls */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                  <IconButton size="small" onClick={() => updateQuantity(item, item.quantity - 1)}
+                    sx={{ width: 24, height: 24, border: "1px solid rgba(148,163,184,0.3)", borderRadius: 1.5, bgcolor: "white" }}>
+                    <RemoveIcon sx={{ fontSize: 12 }} />
+                  </IconButton>
+                  <Typography variant="body2" fontWeight={700} sx={{ minWidth: 20, textAlign: "center" }}>
+                    {item.quantity}
+                  </Typography>
+                  <IconButton size="small" onClick={() => updateQuantity(item, item.quantity + 1)}
+                    sx={{ width: 24, height: 24, border: "1px solid rgba(148,163,184,0.3)", borderRadius: 1.5, bgcolor: "white" }}>
+                    <AddIcon sx={{ fontSize: 12 }} />
+                  </IconButton>
+                </Box>
+
+                <Box sx={{ textAlign: "right", minWidth: 52 }}>
+                  <Typography variant="body2" fontWeight={700} color="secondary.main">
+                    ₪{(item.price * item.quantity).toFixed(2)}
+                  </Typography>
+                  <IconButton size="small" onClick={() => removeItem(item._id)}
+                    sx={{ p: 0.2, color: "error.main" }}>
+                    <DeleteOutlineIcon sx={{ fontSize: 15 }} />
+                  </IconButton>
                 </Box>
               </Box>
-            </Box>
-          ))}
-          <Divider />
+            ))}
+          </Box>
+
+          {/* Notes */}
           <TextField
             fullWidth
-            label="Order Notes (e.g. No onion)"
-            variant="outlined"
+            placeholder="Special instructions (e.g. no onion)"
             size="small"
-            value={orderNotes}
-            onChange={(e) => setOrderNotes(e.target.value)}
-            sx={{ mt: 2, mb: 1 }}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            sx={{ mb: 2 }}
           />
-          <Divider />
 
-          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+          <Divider sx={{ mb: 2 }} />
+
+          {/* Total */}
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2.5 }}>
             <Box>
-              <Typography variant="h6" fontWeight="bold">Total</Typography>
-              <Typography variant="body1" color="textSecondary">
-                items: {order.items.reduce((total, item) => total + item.quantity, 0)}
-              </Typography>
+              <Typography variant="subtitle1" fontWeight={700}>Total</Typography>
+              <Typography variant="caption" color="text.secondary">{itemCount} item{itemCount !== 1 ? "s" : ""}</Typography>
             </Box>
-            <Typography variant="h5" fontWeight="bold" color="#F6521F">
-              ₪{order.items.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
+            <Typography variant="h5" fontWeight={800} color="secondary.main">
+              ₪{total.toFixed(2)}
             </Typography>
           </Box>
 
-          <Button variant="contained" sx={{ mt: 2, bgcolor: "#F6521F" }} fullWidth
-            onClick={() => handleOpen("sendToKitchen")}>
-            <RestaurantIcon sx={{ mr: 1 }} /> Send To Kitchen
-          </Button>
-
-          <Button variant="contained" sx={{ mt: 2, bgcolor: "#1BA672" }} fullWidth
-            onClick={() => handleOpen("payment")}>
-            <WalletIcon sx={{ mr: 1 }} /> Checkout
-          </Button>
-
-          <Button variant="contained" sx={{ mt: 2, bgcolor: "red" }} fullWidth
-            onClick={() => handleOpen("deleteOrder")}>
-            <DeleteIcon sx={{ mr: 1 }} /> Delete Order
-          </Button>
-
-          <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>{actionsMap[actionType]?.title}</DialogTitle>
-            <DialogContent>
-              <DialogContentText>{actionsMap[actionType]?.text}</DialogContentText>
-            </DialogContent>
-            <DialogActions sx={{ px: 3, pb: 2 }}>
-              <Button color="inherit" variant="outlined" onClick={handleClose}>Cancel</Button>
-              <Button
-                onClick={handleYes}
-                variant="contained"
-                autoFocus
-                sx={{
-                  bgcolor: BtnColor[actionType],
-                  '&:hover': { bgcolor: BtnColor[actionType] }
-                }}
-              >
-                Yes
-              </Button>
-            </DialogActions>
-          </Dialog>
-
-        </Box>
+          {/* Action Buttons */}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <Button fullWidth variant="contained" startIcon={<RestaurantIcon />}
+              onClick={() => handleOpen("sendToKitchen")}
+              sx={{ bgcolor: "#f97316", "&:hover": { bgcolor: "#ea6c0a" }, borderRadius: 3 }}>
+              Send to Kitchen
+            </Button>
+            <Button fullWidth variant="contained" startIcon={<WalletIcon />}
+              onClick={() => handleOpen("payment")}
+              sx={{ bgcolor: "#10b981", "&:hover": { bgcolor: "#059669" }, borderRadius: 3 }}>
+              Checkout
+            </Button>
+            <Button fullWidth variant="outlined" color="error" startIcon={<DeleteOutlineIcon />}
+              onClick={() => handleOpen("deleteOrder")}
+              sx={{ borderRadius: 3 }}>
+              Delete Order
+            </Button>
+          </Box>
+        </>
       ) : (
-        <Typography mt={2}>No current order for this table.</Typography>
+        <Box sx={{ py: 6, textAlign: "center" }}>
+          <Typography fontSize={36} mb={1}>🍽️</Typography>
+          <Typography variant="body2" color="text.secondary" fontWeight={600}>
+            No active order
+          </Typography>
+          <Typography variant="caption" color="text.disabled">
+            Select items from the menu to begin.
+          </Typography>
+        </Box>
       )}
+
+      {/* Confirm Dialog */}
+      <Dialog open={open} onClose={handleClose} PaperProps={{ sx: { borderRadius: 3 } }}>
+        <DialogTitle sx={{ fontWeight: 700 }}>{actionsMap[actionType]?.title}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{actionsMap[actionType]?.text}</DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5, gap: 1 }}>
+          <Button onClick={handleClose} variant="outlined" sx={{ flex: 1 }}>Cancel</Button>
+          <Button onClick={handleYes} variant="contained" sx={{
+            flex: 1,
+            bgcolor: actionsMap[actionType]?.color,
+            "&:hover": { bgcolor: actionsMap[actionType]?.color, filter: "brightness(0.9)" },
+          }}>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <ToastContainer position="bottom-right" autoClose={3000} />
     </Box>
   );
 };
-
-// Styles remain unchanged
-const btnStyle = { width: 30, height: 30, backgroundColor: "white", borderRadius: 5, border: "2px solid #E4E4E4", cursor: "pointer", color: "black", fontWeight: "bold", minWidth: "unset", padding: 0, boxShadow: "none" };
-const qtyBoxStyle = { bgcolor: "#E4E4E4", width: 40, height: 30, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 0.5 };
-const deleteBtnStyle = { width: 24, height: 24, borderRadius: "50%", border: "none", backgroundColor: "#FF5252", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", marginLeft: 'auto' };
 
 export default TableSummary;

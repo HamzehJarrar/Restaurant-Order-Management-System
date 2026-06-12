@@ -1,8 +1,5 @@
 import { OrderModel } from "../../../database/models/Order.model.js";
 
-// -----------------------------
-//  TODAY SALES
-// -----------------------------
 export const getTodaySales = async () => {
   const today = new Date();
   const start = new Date(today.setHours(0, 0, 0, 0));
@@ -20,9 +17,6 @@ export const getTodaySales = async () => {
   return result[0]?.total || 0;
 };
 
-// -----------------------------
-//  WEEK SALES
-// -----------------------------
 export const getWeekSales = async () => {
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - 7);
@@ -39,9 +33,6 @@ export const getWeekSales = async () => {
   return result[0]?.total || 0;
 };
 
-// -----------------------------
-//  MONTH SALES
-// -----------------------------
 export const getMonthSales = async () => {
   const monthStart = new Date();
   monthStart.setDate(1);
@@ -58,9 +49,6 @@ export const getMonthSales = async () => {
   return result[0]?.total || 0;
 };
 
-// -----------------------------
-//  ITEMS PROFIT
-// -----------------------------
 export const getItemsProfit = async () => {
   return await OrderModel.aggregate([
     { $unwind: "$items" },
@@ -75,9 +63,6 @@ export const getItemsProfit = async () => {
   ]);
 };
 
-// -----------------------------
-//  BEST SELLERS
-// -----------------------------
 export const getBestSellers = async () => {
   return await OrderModel.aggregate([
     { $unwind: "$items" },
@@ -93,9 +78,6 @@ export const getBestSellers = async () => {
   ]);
 };
 
-// -----------------------------
-//  PEAK HOURS
-// -----------------------------
 export const getPeakHoursData = async () => {
   const peakHours = await OrderModel.aggregate([
     {

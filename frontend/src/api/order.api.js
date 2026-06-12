@@ -1,35 +1,41 @@
 import { api } from "./axios";
 
-export const createOrder = async (data) => {
-  const res = await api.post("/orders", data);
-  return res.data.data;
-};
-
-export const addItemsToOrder = async (data) => {
-  const res = await api.post("/orders/add-items", data);
-  return res.data.data;
-}
-
-export const getOrderByTable = async (tableId) => {
-  const res = await api.get(`/orders/table/${tableId}`);
-  return res.data.data;
-};
-
-export const updateOrder = async (orderId, data) => {
-  const res = await api.patch(`/orders/${orderId}`, data);
-  return res.data.data;
-};
+// Returns { success, data: orders[] }
 export const getAllOrders = async () => {
-  const res = await api.get("/orders");
-  return res.data;
+  const { data } = await api.get("/orders");
+  return data;
 };
 
-export const updateStatus = async (id, data) => {
-  const response = await api.patch(`/orders/${id}/status`, data);
-  return response.data.data;
+// Returns the order object (creates one if none exists for the table)
+export const getOrderByTable = async (tableId) => {
+  const { data } = await api.get(`/orders/table/${tableId}`);
+  return data.data;
 };
 
+// Add items to the table's current order
+export const addItemsToOrder = async ({ tableId, items }) => {
+  const order = await getOrderByTable(tableId);
+  const { data } = await api.post("/orders/add-items", {
+    orderId: order._id,
+    items,
+  });
+  return data.data;
+};
+
+// Update order items (quantity changes / removals)
+export const updateOrder = async (orderId, { items }) => {
+  const { data } = await api.patch(`/orders/${orderId}`, { items });
+  return data.data;
+};
+
+// Update order status (pending → OPEN → cooking → ready → paid)
+export const updateStatus = async (orderId, { status, notes }) => {
+  const { data } = await api.patch(`/orders/${orderId}/status`, { status, notes });
+  return data.data;
+};
+
+// Delete an order
 export const deleteOrder = async (orderId) => {
-  const res = await api.delete(`/orders/${orderId}`);
-  return res.data.data;
+  const { data } = await api.delete(`/orders/${orderId}`);
+  return data;
 };

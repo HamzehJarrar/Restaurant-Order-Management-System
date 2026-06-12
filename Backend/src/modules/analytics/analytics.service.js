@@ -1,4 +1,3 @@
-// analytics.service.js
 import {
   getTodaySales,
   getWeekSales,
@@ -10,9 +9,6 @@ import {
 
 import OpenAI from "openai";
 
-// -----------------------------
-// 1) SALES ANALYTICS SERVICE
-// -----------------------------
 export const salesAnalytics = async () => {
   const todaySales = await getTodaySales();
   const weekSales = await getWeekSales();
@@ -27,23 +23,14 @@ export const salesAnalytics = async () => {
   };
 };
 
-// -----------------------------
-// 2) BEST SELLERS SERVICE
-// -----------------------------
 export const bestSellers = async () => {
   return await getBestSellers();
 };
 
-// -----------------------------
-// 3) PEAK HOURS SERVICE
-// -----------------------------
 export const peakHours = async () => {
   return await getPeakHoursData();
 };
 
-// -----------------------------
-// 4) COLLECT ALL ANALYTICS FOR AI
-// -----------------------------
 export const collectAnalyticsData = async () => {
   const sales = await salesAnalytics();
   const bestsellers = await bestSellers();
@@ -57,9 +44,6 @@ export const collectAnalyticsData = async () => {
   };
 };
 
-// -----------------------------
-// 5) AI INSIGHTS SERVICE
-// -----------------------------
 export const generateAIInsights = async (data) => {
   const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,

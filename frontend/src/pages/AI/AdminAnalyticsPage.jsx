@@ -1,72 +1,60 @@
 import { useEffect, useState } from "react";
 import {
-    Box,
-    Grid,
-    Card,
-    CardContent,
-    Typography,
-    Button,
-    Skeleton,
-    Avatar,
-    Stack,
-    Divider,
-    Container,
-    Paper,
+    Box, Grid, Card, CardContent, Typography, Button, Skeleton,
+    Avatar, Stack, Divider, Container, Paper, Chip, List,
+    ListItem, ListItemAvatar, ListItemText,
 } from "@mui/material";
-import {
-    TrendingUp,
-    Star,
-    AccessTime,
-    AutoAwesome,
-    Refresh,
-} from "@mui/icons-material";
-
-import {
-    getSalesAnalytics,
-    getBestSellers,
-    getPeakHours,
-    getAIInsights,
-} from "../../api/analytics.api";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import StarIcon from "@mui/icons-material/Star";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import Navbar from "../../components/layout/navbar";
+import { getSalesAnalytics, getBestSellers, getPeakHours, getAIInsights } from "../../api/analytics.api";
 
-const StatCard = ({ title, value, loading, icon, color }) => (
-    <Card sx={{ borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)", height: "100%" }}>
-        <CardContent>
-            <Stack direction="row" spacing={2} alignItems="center">
-                <Avatar
-                    sx={{
-                        bgcolor: `${color}.light`,
-                        color: `${color}.main`,
-                        width: 48,
-                        height: 48,
-                    }}
-                >
-                    {icon}
-                </Avatar>
-                <Box>
-                    <Typography variant="subtitle2" color="text.secondary" fontWeight={500}>
-                        {title}
-                    </Typography>
-                    {loading ? (
-                        <Skeleton width={80} height={40} />
-                    ) : (
-                        <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                            {value}
+const STAT_COLORS = {
+    success: { bg: "rgba(16,185,129,0.1)", fg: "#10b981" },
+    warning: { bg: "rgba(245,158,11,0.1)", fg: "#f59e0b" },
+    info:    { bg: "rgba(14,165,233,0.1)", fg: "#0ea5e9" },
+};
+
+const StatCard = ({ title, value, loading, icon, color }) => {
+    const c = STAT_COLORS[color] ?? STAT_COLORS.info;
+    return (
+        <Card elevation={0} sx={{
+            border: "1px solid rgba(148,163,184,0.18)",
+            borderTop: `3px solid ${c.fg}`,
+            height: "100%",
+        }}>
+            <CardContent sx={{ p: 2.5 }}>
+                <Stack direction="row" spacing={2} alignItems="center">
+                    <Avatar sx={{ bgcolor: c.bg, color: c.fg, width: 48, height: 48 }}>
+                        {icon}
+                    </Avatar>
+                    <Box>
+                        <Typography variant="caption" color="text.secondary" fontWeight={600}
+                            textTransform="uppercase" letterSpacing={0.5}>
+                            {title}
                         </Typography>
-                    )}
-                </Box>
-            </Stack>
-        </CardContent>
-    </Card>
-);
+                        {loading
+                            ? <Skeleton width={80} height={36} />
+                            : <Typography variant="h5" fontWeight={800}>{value}</Typography>
+                        }
+                    </Box>
+                </Stack>
+            </CardContent>
+        </Card>
+    );
+};
 
 const AdminAnalyticsPage = () => {
-    const [loading, setLoading] = useState(true);
-    const [sales, setSales] = useState(0);
+    const [loading, setLoading]       = useState(true);
+    const [sales, setSales]           = useState(0);
     const [bestSellers, setBestSellers] = useState([]);
-    const [peakHours, setPeakHours] = useState([]);
+    const [peakHours, setPeakHours]   = useState([]);
     const [aiInsights, setAiInsights] = useState("");
-    const [aiLoading, setAiLoading] = useState(false);
+    const [aiLoading, setAiLoading]   = useState(false);
 
     const fetchData = async () => {
         setLoading(true);
@@ -76,150 +64,177 @@ const AdminAnalyticsPage = () => {
                 getBestSellers(),
                 getPeakHours(),
             ]);
-
-            setSales(salesRes.data.data.todaySales || 0);
-            setBestSellers(bestRes.data.data || []);
-            setPeakHours(peakRes.data.data.peakHours || []);
-        } catch (error) {
-            console.error("Analytics error:", error);
+            setSales(salesRes.data.data.todaySales ?? 0);
+            setBestSellers(bestRes.data.data ?? []);
+            setPeakHours(peakRes.data.data.peakHours ?? []);
+        } catch (e) {
+            console.error("Analytics error:", e);
         } finally {
             setLoading(false);
         }
     };
 
     const handleAIInsights = async () => {
+        setAiLoading(true);
         try {
-            setAiLoading(true);
             const res = await getAIInsights();
             setAiInsights(res.data.data);
-        } catch (error) {
-            console.error("AI Insights error:", error);
+        } catch {
             setAiInsights("Failed to generate insights. Please try again.");
         } finally {
             setAiLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    useEffect(() => { fetchData(); }, []);
 
     return (
-        <Box sx={{ bgcolor: "#f8f9fa", minHeight: "100vh" }}>
+        <Box sx={{ minHeight: "100vh" }}>
             <Navbar />
-            <Container maxWidth="lg" sx={{ py: 5 }}>
-                {/* Header Section */}
-                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+            <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }}>
+
+                {/* Header */}
+                <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between"
+                    alignItems={{ xs: "flex-start", sm: "center" }} spacing={2} mb={4}>
                     <Box>
                         <Typography variant="h4" fontWeight={800} color="primary.main">
                             Analytics Dashboard
                         </Typography>
-                        <Typography variant="body1" color="text.secondary">
-                            Real-time performance and AI-driven insights.
+                        <Typography variant="body2" color="text.secondary" mt={0.5}>
+                            Real-time performance and AI-driven insights
                         </Typography>
                     </Box>
-                    <Button
-                        variant="outlined"
-                        startIcon={<Refresh />}
-                        onClick={fetchData}
-                        sx={{ borderRadius: 2 }}
-                    >
+                    <Button variant="outlined" startIcon={<RefreshIcon />} onClick={fetchData}
+                        sx={{ borderRadius: 3, flexShrink: 0 }}>
                         Refresh
                     </Button>
                 </Stack>
 
                 <Grid container spacing={3}>
-                    {/* Stats Cards */}
-                    <Grid item xs={12} md={4}>
-                        <StatCard
-                            title="Today's Sales"
-                            value={`$${sales.toLocaleString()}`}
-                            loading={loading}
-                            icon={<TrendingUp />}
-                            color="success"
-                        />
+                    {/* Stat Cards */}
+                    <Grid item xs={12} sm={4}>
+                        <StatCard title="Today's Sales" value={`₪${sales.toLocaleString()}`}
+                            loading={loading} icon={<TrendingUpIcon />} color="success" />
                     </Grid>
-
-                    <Grid item xs={12} md={4}>
-                        <StatCard
-                            title="Top Selling Product"
-                            value={bestSellers[0]?._id || "No Data"}
-                            loading={loading}
-                            icon={<Star />}
-                            color="warning"
-                        />
+                    <Grid item xs={12} sm={4}>
+                        <StatCard title="Top Dish" value={bestSellers[0]?._id || "No data"}
+                            loading={loading} icon={<StarIcon />} color="warning" />
                     </Grid>
-
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} sm={4}>
                         <StatCard
-                            title="Peak Traffic Hour"
+                            title="Peak Hour"
                             value={peakHours[0]?._id?.hour !== undefined ? `${peakHours[0]._id.hour}:00` : "—"}
-                            loading={loading}
-                            icon={<AccessTime />}
-                            color="info"
-                        />
+                            loading={loading} icon={<AccessTimeIcon />} color="info" />
                     </Grid>
 
-                    {/* AI INSIGHTS SECTION */}
+                    {/* Best Sellers List */}
+                    {bestSellers.length > 0 && (
+                        <Grid item xs={12} md={5}>
+                            <Card elevation={0} sx={{ border: "1px solid rgba(148,163,184,0.18)", height: "100%" }}>
+                                <CardContent sx={{ p: 2.5 }}>
+                                    <Stack direction="row" spacing={1} alignItems="center" mb={2}>
+                                        <EmojiEventsIcon color="warning" fontSize="small" />
+                                        <Typography variant="subtitle1" fontWeight={700}>Best Sellers</Typography>
+                                    </Stack>
+                                    <Divider sx={{ mb: 1 }} />
+                                    <List disablePadding>
+                                        {bestSellers.slice(0, 5).map((item, i) => (
+                                            <ListItem key={i} disableGutters sx={{ py: 1 }}>
+                                                <ListItemAvatar sx={{ minWidth: 40 }}>
+                                                    <Chip label={`#${i + 1}`} size="small" sx={{
+                                                        fontWeight: 800, fontSize: 11,
+                                                        bgcolor: i === 0 ? "rgba(245,158,11,0.15)" : "rgba(15,23,42,0.05)",
+                                                        color: i === 0 ? "#d97706" : "text.secondary",
+                                                    }} />
+                                                </ListItemAvatar>
+                                                <ListItemText
+                                                    primary={<Typography variant="body2" fontWeight={700}>{item._id}</Typography>}
+                                                    secondary={`${item.totalSold ?? item.count ?? "—"} sold`}
+                                                />
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    )}
+
+                    {/* Peak Hours */}
+                    {peakHours.length > 0 && (
+                        <Grid item xs={12} md={bestSellers.length > 0 ? 7 : 12}>
+                            <Card elevation={0} sx={{ border: "1px solid rgba(148,163,184,0.18)", height: "100%" }}>
+                                <CardContent sx={{ p: 2.5 }}>
+                                    <Stack direction="row" spacing={1} alignItems="center" mb={2}>
+                                        <AccessTimeIcon color="info" fontSize="small" />
+                                        <Typography variant="subtitle1" fontWeight={700}>Peak Traffic Hours</Typography>
+                                    </Stack>
+                                    <Divider sx={{ mb: 2 }} />
+                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                        {peakHours.slice(0, 8).map((h, i) => (
+                                            <Chip
+                                                key={i}
+                                                label={`${h._id?.hour}:00`}
+                                                size="small"
+                                                variant={i === 0 ? "filled" : "outlined"}
+                                                color={i === 0 ? "secondary" : "default"}
+                                                sx={{ fontWeight: 700, color: i === 0 ? "white" : undefined }}
+                                            />
+                                        ))}
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    )}
+
+                    {/* AI Insights */}
                     <Grid item xs={12}>
-                        <Paper
-                            elevation={0}
-                            sx={{
-                                borderRadius: 4,
-                                p: 3,
-                                background: "linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%)",
-                                border: "1px solid",
-                                borderColor: "primary.light",
-                                position: "relative",
-                                overflow: "hidden"
-                            }}
-                        >
-                            <Stack direction="row" spacing={1} alignItems="center" mb={2}>
-                                <AutoAwesome color="primary" />
-                                <Typography variant="h6" fontWeight={700}>
-                                    AI Business Intelligence
-                                </Typography>
+                        <Paper elevation={0} sx={{
+                            borderRadius: 3,
+                            p: { xs: 2.5, md: 3 },
+                            background: "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,245,235,0.9) 100%)",
+                            border: "1px solid rgba(245,158,11,0.2)",
+                        }}>
+                            <Stack direction="row" spacing={1.5} alignItems="center" mb={2}>
+                                <Avatar sx={{ bgcolor: "rgba(245,158,11,0.1)", color: "#f59e0b", width: 40, height: 40 }}>
+                                    <AutoAwesomeIcon fontSize="small" />
+                                </Avatar>
+                                <Box>
+                                    <Typography variant="subtitle1" fontWeight={700}>AI Business Intelligence</Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Powered by Claude · Analyze your restaurant data
+                                    </Typography>
+                                </Box>
                             </Stack>
 
-                            <Divider sx={{ mb: 2 }} />
+                            <Divider sx={{ mb: 2.5 }} />
 
-                            <Box sx={{ minHeight: 80 }}>
+                            <Box sx={{ minHeight: 80, mb: 2.5 }}>
                                 {aiLoading ? (
-                                    <Stack spacing={1}>
-                                        <Skeleton width="90%" />
-                                        <Skeleton width="70%" />
+                                    <Stack spacing={1.5}>
+                                        <Skeleton width="95%" height={20} />
+                                        <Skeleton width="80%" height={20} />
+                                        <Skeleton width="88%" height={20} />
                                     </Stack>
                                 ) : (
-                                    <Typography
-                                        variant="body1"
-                                        sx={{
-                                            lineHeight: 1.7,
-                                            color: "text.primary",
-                                            whiteSpace: "pre-line",
-                                            fontStyle: aiInsights ? "normal" : "italic",
-                                            opacity: aiInsights ? 1 : 0.6
-                                        }}
-                                    >
-                                        {aiInsights || "Our AI is ready to analyze your data. Click generate to start."}
+                                    <Typography variant="body1" sx={{
+                                        lineHeight: 1.8, whiteSpace: "pre-line",
+                                        fontStyle: aiInsights ? "normal" : "italic",
+                                        color: aiInsights ? "text.primary" : "text.secondary",
+                                    }}>
+                                        {aiInsights || "Click \"Generate Insights\" to get AI-powered analysis of your restaurant's performance."}
                                     </Typography>
                                 )}
                             </Box>
 
                             <Button
                                 variant="contained"
-                                size="large"
-                                startIcon={<AutoAwesome />}
+                                color="secondary"
+                                startIcon={<AutoAwesomeIcon />}
                                 onClick={handleAIInsights}
                                 disabled={aiLoading || loading}
-                                sx={{
-                                    mt: 3,
-                                    borderRadius: 3,
-                                    textTransform: "none",
-                                    fontWeight: 600,
-                                    boxShadow: "0 4px 14px 0 rgba(0,118,255,0.39)",
-                                }}
+                                sx={{ borderRadius: 3 }}
                             >
-                                {aiInsights ? "Regenerate Insights" : "Generate AI Insights"}
+                                {aiInsights ? "Regenerate Insights" : "Generate Insights"}
                             </Button>
                         </Paper>
                     </Grid>

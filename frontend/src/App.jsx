@@ -8,8 +8,6 @@ import MenuDashboard from "./pages/menu/MenuDashboard.jsx";
 import MenuForm from "./pages/menu/MenuForm.jsx";
 import AdminAnalyticsPage from "./pages/AI/AdminAnalyticsPage.jsx";
 import "./App.css";
-import LoginPage from "./auth/LoginPage.jsx";
-import RegisterPage from "./auth/RegisterPage.jsx";
 
 function App() {
   return (
@@ -22,8 +20,6 @@ function App() {
           <Route path="/menu-dashboard" element={<MenuDashboard />} />
           <Route path="/menu-form" element={<MenuForm />} />
           <Route path="/admin-analytics" element={<AdminAnalyticsPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
           <Route path="/" element={<POSPage />} />
         </Routes>
       </BrowserRouter>

@@ -1,14 +1,22 @@
-import { api } from "./axios";
+import {
+  salesAnalytics,
+  bestSellers,
+  peakHours,
+  aiInsights,
+} from "../data/analytics.data";
 
-export const getSalesAnalytics = async () => {
-  return await api.get("/analytics/sales");
-};
-export const getBestSellers = async () => {
-  return await api.get("/analytics/bestsellers");
-};
-export const getPeakHours = async () => {
-  return await api.get("/analytics/peak-hours");
-};
-export const getAIInsights = async () => {
-  return await api.post("/analytics/ai-insights");
-};
+export const getSalesAnalytics = async () => ({
+  data: { data: salesAnalytics },
+});
+
+export const getBestSellers = async () => ({
+  data: { data: bestSellers },
+});
+
+export const getPeakHours = async () => ({
+  data: { data: peakHours },
+});
+
+export const getAIInsights = async () => ({
+  data: { data: aiInsights },
+});
